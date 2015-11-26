@@ -1,5 +1,8 @@
 package com.harinivaskumarrp.popularmovies;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,6 +27,8 @@ import java.net.URLDecoder;
  * A placeholder fragment containing a simple view.
  */
 public class PopularMoviesActivityFragment extends Fragment {
+
+    private final String LOG_TAG = PopularMoviesActivityFragment.class.getSimpleName();
 
     // please, add in your movie database APP ID from www.themoviedb.org
     private String MY_MOVIE_APP_ID = "Your Personal TMDB.org APP ID";
@@ -55,6 +60,18 @@ public class PopularMoviesActivityFragment extends Fragment {
         return rootView;
     }
 
+    // Added from StackOverFlow
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        if (activeNetworkInfo != null && activeNetworkInfo.isConnected()){
+            return true;
+        }
+        Log.e(LOG_TAG, "No Internet Connection available.");
+        return false;
+    }
+
     private void updateMovieList(){
         int pageNumber = 1;
         int sortByType = 2;
@@ -66,7 +83,14 @@ public class PopularMoviesActivityFragment extends Fragment {
 
     public void onStart(){
         super.onStart();
-        updateMovieList();
+        if (isNetworkAvailable()){
+            updateMovieList();
+        }else{
+            Toast.makeText(getContext(),
+                    "You are Offline.\nPlease, check your Network Connection!",
+                    Toast.LENGTH_LONG)
+                    .show();
+        }
     }
 
     public class FetchMovieTask extends AsyncTask<Void, Void, String> {
