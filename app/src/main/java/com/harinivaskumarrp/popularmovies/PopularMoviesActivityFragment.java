@@ -109,9 +109,13 @@ public class PopularMoviesActivityFragment extends Fragment {
         private final int POPULARITY = 1;
         private final int RATING = 2;
 
+        private final int SUCCESS_HTTP_OK = 200;
+        private final int CLIENT_ERROR_BAD_REQUEST = 400;
+
         int mPageNumber = 0;
         int mSortByType = 0;
         int mMinVoteCount = 0;
+        int mResponseCode = 0;
 
         public FetchMovieTask (int pageNumber, int sortByType, int minVoteCount) {
             setPageNumber(pageNumber);
@@ -143,6 +147,14 @@ public class PopularMoviesActivityFragment extends Fragment {
             this.mMinVoteCount = minVoteCount;
         }
 
+        public int getResponseCode() {
+            return mResponseCode;
+        }
+
+        public void setResponseCode(int responseCode) {
+            this.mResponseCode = responseCode;
+        }
+
         protected Uri getMovieUri (){
             if (getSortByType() == POPULARITY) {
                 return (Uri.parse(DISCOVER_MOVIE_BASE_URL).buildUpon()
@@ -158,6 +170,23 @@ public class PopularMoviesActivityFragment extends Fragment {
                         .appendQueryParameter(APPID_PARAM, MY_MOVIE_APP_ID)
                         .build());
             }
+        }
+
+        protected boolean checkResponseCode (HttpURLConnection urlConnection)
+                throws IOException{
+
+            // Referred Android API guide
+            setResponseCode(urlConnection.getResponseCode());
+            String responseMessage = urlConnection.getResponseMessage();
+
+            if (getResponseCode() == CLIENT_ERROR_BAD_REQUEST){
+                Log.e(LOG_TAG_I, "Response: " + responseMessage + "/" + mResponseCode);
+                return false;
+            }else if(getResponseCode() == SUCCESS_HTTP_OK){
+                Log.d(LOG_TAG_I, "Response: " + responseMessage + "/" + mResponseCode);
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -177,6 +206,10 @@ public class PopularMoviesActivityFragment extends Fragment {
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
+
+                if (!checkResponseCode(urlConnection)){
+                    return null;
+                }
 
                 InputStream inputStream = urlConnection.getInputStream();
                 if (inputStream == null){
@@ -217,6 +250,13 @@ public class PopularMoviesActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(String strings) {
             super.onPostExecute(strings);
+
+            if (getResponseCode() == CLIENT_ERROR_BAD_REQUEST) {
+                Toast.makeText(getContext(),
+                        "Invalid API key!\nYou must be granted a valid key.",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
         }
     }
 }
