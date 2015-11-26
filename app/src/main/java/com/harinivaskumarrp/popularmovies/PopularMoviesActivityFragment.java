@@ -60,8 +60,8 @@ public class PopularMoviesActivityFragment extends Fragment {
         int sortByType = 2;
         int minVoteCount = 100;
 
-        FetchMovieTask movieTask = new FetchMovieTask();
-        movieTask.execute("" + pageNumber, ""+sortByType, ""+minVoteCount);
+        FetchMovieTask movieTask = new FetchMovieTask(pageNumber, sortByType, minVoteCount);
+        movieTask.execute();
     }
 
     public void onStart(){
@@ -69,31 +69,67 @@ public class PopularMoviesActivityFragment extends Fragment {
         updateMovieList();
     }
 
-    public class FetchMovieTask extends AsyncTask<String, Void, String> {
+    public class FetchMovieTask extends AsyncTask<Void, Void, String> {
 
         private final String LOG_TAG_I = FetchMovieTask.class.getSimpleName();
 
-        protected Uri getMovieUri (int pageNumber, int sortByType, int minVoteCount){
+        private final String DISCOVER_MOVIE_BASE_URL = "http://api.themoviedb.org/3/discover/movie?";
+        private final String PAGE_PARAM = "page";
+        private final String VOTE_COUNT_PARAM = "vote_count.gte";
+        private final String SORT_PARAM = "sort_by";
+        private final String APPID_PARAM = "api_key";
 
-            final String DISCOVER_MOVIE_BASE_URL = "http://api.themoviedb.org/3/discover/movie?";
-            final String PAGE_PARAM = "page";
-            final String VOTE_COUNT_PARAM = "vote_count.gte";
-            final String SORT_PARAM = "sort_by";
-            final String APPID_PARAM = "api_key";
+        private final String POPULARITY_DESC = "popularity.desc";
+        private final String HIGHEST_RATING = "vote_average.desc";
 
-            final String POPULARITY_DESC = "popularity.desc";
-            final String HIGHEST_RATING = "vote_average.desc";
+        private final int POPULARITY = 1;
+        private final int RATING = 2;
 
-            if (sortByType == 1) {
+        int mPageNumber = 0;
+        int mSortByType = 0;
+        int mMinVoteCount = 0;
+
+        public FetchMovieTask (int pageNumber, int sortByType, int minVoteCount) {
+            setPageNumber(pageNumber);
+            setSortByType(sortByType);
+            setMinVoteCount(minVoteCount);
+        }
+
+        private int getPageNumber() {
+            return mPageNumber;
+        }
+
+        private void setPageNumber(int pageNumber) {
+            this.mPageNumber = pageNumber;
+        }
+
+        private int getSortByType() {
+            return mSortByType;
+        }
+
+        private void setSortByType(int sortByType) {
+            this.mSortByType = sortByType;
+        }
+
+        private int getMinVoteCount() {
+            return mMinVoteCount;
+        }
+
+        private void setMinVoteCount(int minVoteCount) {
+            this.mMinVoteCount = minVoteCount;
+        }
+
+        protected Uri getMovieUri (){
+            if (getSortByType() == POPULARITY) {
                 return (Uri.parse(DISCOVER_MOVIE_BASE_URL).buildUpon()
-                        .appendQueryParameter(PAGE_PARAM, "" + pageNumber)
+                        .appendQueryParameter(PAGE_PARAM, getPageNumber() + "")
                         .appendQueryParameter(SORT_PARAM, POPULARITY_DESC)
                         .appendQueryParameter(APPID_PARAM, MY_MOVIE_APP_ID)
                         .build());
             }else{
                 return (Uri.parse(DISCOVER_MOVIE_BASE_URL).buildUpon()
-                        .appendQueryParameter(PAGE_PARAM, "" + pageNumber)
-                        .appendQueryParameter(VOTE_COUNT_PARAM, "" + minVoteCount)
+                        .appendQueryParameter(PAGE_PARAM, getPageNumber() + "")
+                        .appendQueryParameter(VOTE_COUNT_PARAM, getMinVoteCount() + "")
                         .appendQueryParameter(SORT_PARAM, HIGHEST_RATING)
                         .appendQueryParameter(APPID_PARAM, MY_MOVIE_APP_ID)
                         .build());
@@ -101,21 +137,14 @@ public class PopularMoviesActivityFragment extends Fragment {
         }
 
         @Override
-        protected String doInBackground(String... params) {
-
-            if (params.length == 0){
-                return null;
-            }
+        protected String doInBackground(Void... params) {
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String movieJsonStr = null;
-            int pageNumber = Integer.parseInt(params[0]);
-            int sortByType = Integer.parseInt(params[1]);
-            int minVoteCount = Integer.parseInt(params[2]);
 
             try {
-                Uri movieUri = getMovieUri(pageNumber, sortByType, minVoteCount);
+                Uri movieUri = getMovieUri();
 
                 String discoverMovieURL = URLDecoder.decode(movieUri.toString(), "UTF-8");
                 //Log.d(LOG_TAG_I, "discoverMovieURL : " + discoverMovieURL);
