@@ -1,33 +1,46 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:key="root_preference">
 
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="example_switch"
-        android:summary="@string/pref_description_social_recommendations"
-        android:title="@string/pref_title_social_recommendations" />
-
-    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
-    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
-    <EditTextPreference
-        android:capitalize="words"
-        android:defaultValue="@string/pref_default_display_name"
-        android:inputType="textCapWords"
-        android:key="example_text"
-        android:maxLines="1"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="@string/pref_title_display_name" />
-
-    <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
-         dismiss it. -->
-    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
     <ListPreference
-        android:defaultValue="-1"
-        android:entries="@array/pref_example_list_titles"
-        android:entryValues="@array/pref_example_list_values"
-        android:key="example_list"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null"
-        android:title="@string/pref_title_add_friends_to_messages" />
+        android:title="Movie Sorting"
+        android:key="@string/pref_sort_key"
+        android:defaultValue="@string/pref_sort_value_default"
+        android:entryValues="@array/pref_sort_key_values"
+        android:entries="@array/pref_sort_label_values" />
+
+    <PreferenceScreen
+        android:key="pref_child_page"
+        android:title="Page"
+        android:summary="@string/pref_child_page_summary">
+        <EditTextPreference
+            android:title="@string/pref_page_title"
+            android:key="@string/pref_page_key_config"
+            android:defaultValue="@string/pref_page_default"
+            android:summary="@string/pref_page_summary_config"
+            android:inputType="numberSigned" />
+        <EditTextPreference
+            android:title="@string/pref_page_summary_max"
+            android:key="@string/pref_page_key_max"
+            android:defaultValue="@string/pref_page_default_max"/>
+    </PreferenceScreen>
+
+    <PreferenceScreen
+        android:key="pref_child_vote"
+        android:title="Vote"
+        android:summary="@string/pref_child_vote_summary">
+        <EditTextPreference
+            android:title="@string/pref_min_vote_title"
+            android:key="@string/pref_min_vote_key_config"
+            android:defaultValue="@string/pref_min_vote_default"
+            android:summary="@string/pref_min_vote_summary_config"
+            android:inputType="numberSigned" />
+        <EditTextPreference
+            android:title="@string/pref_min_vote_summary_max"
+            android:key="@string/pref_min_vote_key_max"
+            android:defaultValue="@string/pref_min_vote_default_max"/>
+    </PreferenceScreen>
 
 </PreferenceScreen>

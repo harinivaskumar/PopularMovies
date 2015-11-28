@@ -50,14 +50,21 @@ public class TMDBUrlBuilder {
     private final int HTTP_CLIENT_UNAUTHORIZED = 401;
     private final int HTTP_CLIENT_ERROR_NOT_FOUND = 404;
 
+    private final int DEFAULT_SORT_TYPE = POPULARITY;
+    private final int DEFAULT_PAGE_NUMBER = 1;
+    private final int DEFAULT_VOTE_COUNT = 100;
+
     //EndPoint Types
-    public int DISCOVER_MOVIE = 1;
-    public int MOVIE_VIDEOS = 2;
-    public int MOVIE_REVIEWS = 3;
+    public final int DISCOVER_MOVIE = 1;
+    public final int MOVIE_VIDEOS = 2;
+    public final int MOVIE_REVIEWS = 3;
 
     private int urlEndPoint, pageNumber, sortType, minVoteCount, movieId;
-    public int httpStatusCode = 0;
+    private int httpStatusCode = 0;
     public APIStatusCodeData apiStatusCodeData = null;
+
+    public TMDBUrlBuilder(){
+    }
 
     public TMDBUrlBuilder(int urlEndPoint, int pageNumber, int sortByType, int minVoteCount, int movieId) {
         setUrlEndPoint(urlEndPoint);
@@ -75,31 +82,55 @@ public class TMDBUrlBuilder {
         this.urlEndPoint = urlEndPoint;
     }
 
-    public int getPageNumber() {
+    private int getPageNumber() {
         return pageNumber;
     }
 
-    public void setPageNumber(int pageNumber) {
+    private void setPageNumber(int pageNumber) {
         this.pageNumber = pageNumber;
     }
 
-    public int getSortByType() {
+    public void setPageNumber(String pageNumber){
+        if (pageNumber.isEmpty()){
+            setPageNumber(DEFAULT_PAGE_NUMBER);
+        }else {
+            setPageNumber(Integer.parseInt(pageNumber));
+        }
+    }
+
+    private int getSortByType() {
         return sortType;
     }
 
-    public void setSortByType(int sortByType) {
+    private void setSortByType(int sortByType) {
         this.sortType = sortByType;
     }
 
-    public int getMinVoteCount() {
+    public void setSortByType(String sortByType) {
+        if (sortByType.isEmpty()) {
+            setSortByType(DEFAULT_SORT_TYPE);
+        }else {
+            setSortByType(Integer.parseInt(sortByType));
+        }
+    }
+
+    private int getMinVoteCount() {
         return minVoteCount;
     }
 
-    public void setMinVoteCount(int minVoteCount) {
+    private void setMinVoteCount(int minVoteCount) {
         this.minVoteCount = minVoteCount;
     }
 
-    public int getMovieId() {
+    public void setMinVoteCount(String minVoteCount){
+        if (minVoteCount.isEmpty()) {
+            setMinVoteCount(DEFAULT_VOTE_COUNT);
+        }else{
+            setMinVoteCount(Integer.parseInt(minVoteCount));
+        }
+    }
+
+    private int getMovieId() {
         return movieId;
     }
 
@@ -107,11 +138,11 @@ public class TMDBUrlBuilder {
         this.movieId = movieId;
     }
 
-    public int getHttpStatusCode() {
+    private int getHttpStatusCode() {
         return httpStatusCode;
     }
 
-    public void setHttpStatusCode(int httpStatusCode) {
+    private void setHttpStatusCode(int httpStatusCode) {
         this.httpStatusCode = httpStatusCode;
     }
 
@@ -119,22 +150,21 @@ public class TMDBUrlBuilder {
         String baseURLStr = null;
 
         if (getUrlEndPoint() == DISCOVER_MOVIE) {
+            String sortParamStr = POPULARITY_DESC; //default
             baseURLStr = DISCOVER_MOVIE_BASE_URL;
 
             if (getSortByType() == POPULARITY) {
-                return (Uri.parse(baseURLStr).buildUpon()
-                        .appendQueryParameter(PAGE_PARAM, getPageNumber() + "")
-                        .appendQueryParameter(SORT_PARAM, POPULARITY_DESC)
-                        .appendQueryParameter(APPID_PARAM, MY_MOVIE_APP_ID)
-                        .build());
+                sortParamStr = POPULARITY_DESC;
             } else if (getSortByType() == RATING) {
-                return (Uri.parse(baseURLStr).buildUpon()
-                        .appendQueryParameter(PAGE_PARAM, getPageNumber() + "")
-                        .appendQueryParameter(VOTE_COUNT_PARAM, getMinVoteCount() + "")
-                        .appendQueryParameter(SORT_PARAM, HIGHEST_RATING)
-                        .appendQueryParameter(APPID_PARAM, MY_MOVIE_APP_ID)
-                        .build());
+                sortParamStr = HIGHEST_RATING;
             }
+
+            return (Uri.parse(baseURLStr).buildUpon()
+                    .appendQueryParameter(PAGE_PARAM, getPageNumber() + "")
+                    .appendQueryParameter(VOTE_COUNT_PARAM, getMinVoteCount() + "")
+                    .appendQueryParameter(SORT_PARAM, sortParamStr)
+                    .appendQueryParameter(APPID_PARAM, MY_MOVIE_APP_ID)
+                    .build());
         }else if (getUrlEndPoint() == MOVIE_VIDEOS) {
             baseURLStr = MOVIE_VIDEO_BASE_URL + getMovieId() + MOVIE_VIDEO_ENDPOINT;
 

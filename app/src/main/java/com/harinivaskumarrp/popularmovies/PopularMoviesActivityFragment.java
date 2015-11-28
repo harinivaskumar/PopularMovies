@@ -1,10 +1,12 @@
 package com.harinivaskumarrp.popularmovies;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -67,14 +69,23 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
     }
 
     private void updateMovieList() {
-        int urlEndPoint = 0, movieId = 157336;
-        int pageNumber = 1, sortByType = 1, minVoteCount = 100;
-        TMDBUrlBuilder tmdbUrlBuilder = new TMDBUrlBuilder(urlEndPoint, pageNumber,
-                        sortByType, minVoteCount, movieId);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        String sortByTypeStr = prefs.getString(getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_value_popularity));
+        String pageNumberStr = prefs.getString(getString(R.string.pref_page_key_config),
+                getString(R.string.pref_page_default));
+        String minVoteCount = prefs.getString(getString(R.string.pref_min_vote_key_config),
+                getString(R.string.pref_min_vote_default));
+
+        TMDBUrlBuilder tmdbUrlBuilder = new TMDBUrlBuilder();
 
         tmdbUrlBuilder.setUrlEndPoint(tmdbUrlBuilder.DISCOVER_MOVIE);
         //tmdbUrlBuilder.setUrlEndPoint(tmdbUrlBuilder.MOVIE_VIDEOS);
         //tmdbUrlBuilder.setUrlEndPoint(tmdbUrlBuilder.MOVIE_REVIEWS);
+        tmdbUrlBuilder.setSortByType(sortByTypeStr);
+        tmdbUrlBuilder.setPageNumber(pageNumberStr);
+        tmdbUrlBuilder.setMinVoteCount(minVoteCount);
 
         FetchMovieListTask movieListTask = new FetchMovieListTask(tmdbUrlBuilder);
         movieListTask.execute();
@@ -141,7 +152,7 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
             super.onPostExecute(jsonString);
 
             if (!tmdbUrlBuilder.validateHttpResponseCode()){
-                Toast.makeText(getContext(),
+                Toast.makeText(getActivity(),
                         "Invalid API key!\nYou must be granted a valid key.",
                         Toast.LENGTH_SHORT)
                         .show();
@@ -149,7 +160,7 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
                 MovieListData movieListData = new MovieListData(jsonString);
                 if (movieListData.parseMovieListData()) {
                     mImageViewAdapter.setMovieList(movieListData.movieList);
-                    Toast.makeText(getContext(),
+                    Toast.makeText(getActivity(),
                             "Total Movies in MovieList is - " + movieListData.getMovieCount(),
                             Toast.LENGTH_SHORT)
                             .show();
@@ -159,7 +170,7 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
                 }
                 /*MovieVideosData movieVideosData = new MovieVideosData(jsonString);
                 if (movieVideosData.parseMovieVideosData()){
-                    Toast.makeText(getContext(),
+                    Toast.makeText(getActivity(),
                             "Total Videos in MovieVideos is - " + movieVideosData.getVideoCount(),
                             Toast.LENGTH_SHORT)
                             .show();
@@ -168,7 +179,7 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
                 }*/
                 /*MovieReviewsData movieReviewsData = new MovieReviewsData(jsonString);
                 if (movieReviewsData.parseMovieReviewsData()){
-                    Toast.makeText(getContext(),
+                    Toast.makeText(getActivity(),
                             "Total Reviews in MovieReviews is - " + movieReviewsData.getReviewCount(),
                             Toast.LENGTH_SHORT)
                             .show();
