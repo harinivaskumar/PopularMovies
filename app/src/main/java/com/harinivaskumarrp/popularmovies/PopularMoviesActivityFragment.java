@@ -33,7 +33,7 @@ public class PopularMoviesActivityFragment extends Fragment {
     private final String LOG_TAG = PopularMoviesActivityFragment.class.getSimpleName();
 
     // please, add in your movie database APP ID from www.themoviedb.org
-    private String MY_MOVIE_APP_ID = "Your Personal APP_ID";
+    private String MY_MOVIE_APP_ID = "Your_APP_ID";
 
     public PopularMoviesActivityFragment() {
     }
@@ -116,21 +116,21 @@ public class PopularMoviesActivityFragment extends Fragment {
         private final int HTTP_REQUEST_FAILURE = 0;
         private final int HTTP_SUCCESS_HTTP_OK = 200;
         private final int HTTP_CLIENT_ERROR_BAD_REQUEST = 400;
+        private final int HTTP_CLIENT_UNAUTHORIZED = 401;
+        private final int HTTP_CLIENT_ERROR_NOT_FOUND = 404;
 
         int mUrlHeadType = 0;
         int mPageNumber = 0;
         int mSortByType = 0;
         int mMinVoteCount = 0;
-        int mResponseCode = 0;
-        String mResponseMessage = null;
+        int mHttpStatusCode = 0;
+        APIStatusCodeData apiStatusCodeData = null;
 
         public FetchMovieTask(int pageNumber, int sortByType, int minVoteCount) {
             setUrlHeadType(DISCOVER_MOVIE);
             setPageNumber(pageNumber);
             setSortByType(sortByType);
             setMinVoteCount(minVoteCount);
-            setResponseCode(HTTP_REQUEST_FAILURE);
-            setResponseMessage(null);
         }
 
         private int getUrlHeadType() {
@@ -165,22 +165,6 @@ public class PopularMoviesActivityFragment extends Fragment {
             this.mMinVoteCount = minVoteCount;
         }
 
-        private int getResponseCode() {
-            return mResponseCode;
-        }
-
-        private void setResponseCode(int responseCode) {
-            this.mResponseCode = responseCode;
-        }
-
-        private String getResponseMessage() {
-            return mResponseMessage;
-        }
-
-        private void setResponseMessage(String responseMessage) {
-            this.mResponseMessage = responseMessage;
-        }
-
         private Uri getTmdbUri() {
 
             String baseURLStr = null;
@@ -209,15 +193,14 @@ public class PopularMoviesActivityFragment extends Fragment {
         private URL getTmdbURLInstance() {
 
             URL tmdbURL = null;
-
             try {
                 Uri tmdbUri = getTmdbUri();
 
                 if (tmdbUri == null) {
-                    Log.e(LOG_TAG_I, "URI build Failed");
+                    Log.e(LOG_TAG_I, "getTmdbURLInstance : URI build Failed");
                 } else {
                     String tmdbURLStr = URLDecoder.decode(tmdbUri.toString(), "UTF-8");
-                    Log.d(LOG_TAG_I, "TMDB URL : " + tmdbURLStr);
+                    Log.d(LOG_TAG_I, "getTmdbURLInstance : TMDB URL - " + tmdbURLStr);
 
                     tmdbURL = new URL(tmdbURLStr);
                 }
@@ -228,18 +211,46 @@ public class PopularMoviesActivityFragment extends Fragment {
             return tmdbURL;
         }
 
+        private boolean validateHttpResponseCode(int httpResponseCode){
+            switch (httpResponseCode){
+                case HTTP_CLIENT_ERROR_BAD_REQUEST:
+                    return false;
+                case HTTP_CLIENT_UNAUTHORIZED:
+                    return false;
+                case HTTP_CLIENT_ERROR_NOT_FOUND:
+                    return false;
+                case HTTP_SUCCESS_HTTP_OK:
+                    return true;
+            }
+            return false;
+        }
+
         private boolean checkResponseCode(InputStream inputErrorStream)
                 throws IOException {
 
-            if (getResponseCode() == HTTP_CLIENT_ERROR_BAD_REQUEST) {
-                Log.d(LOG_TAG_I, "Response: " + mResponseMessage + "/" + mResponseCode);
+            //Log.d(LOG_TAG_I, "checkResponseCode : Response - " + mResponseMessage + "/" + mResponseCode);
+            Log.d(LOG_TAG_I, "checkResponseCode : Response - " +
+                    apiStatusCodeData.apiStatusCodes.getHttpStatusMessage() + "/" +
+                    apiStatusCodeData.apiStatusCodes.getHttpStatusCode());
 
+            if (!validateHttpResponseCode(mHttpStatusCode)){
                 String jsonErrorStr =
                         readJSONStringFromIOStream(inputErrorStream);
 
-                Log.d(LOG_TAG_I, "Json Error String - " + jsonErrorStr);
-            } else if (getResponseCode() == HTTP_SUCCESS_HTTP_OK) {
-                Log.d(LOG_TAG_I, "Response: " + mResponseMessage + "/" + mResponseCode);
+                if (jsonErrorStr != null) {
+                    apiStatusCodeData.setJsonData(jsonErrorStr);
+                    apiStatusCodeData.setJsonObject(apiStatusCodeData.createJSONObject());
+                    if (apiStatusCodeData.parseAPIStatusCodeData()) {
+                        //Log.d(LOG_TAG_I, "Json Error String - " + jsonErrorStr);
+
+                        Log.d(LOG_TAG_I, "checkResponseCode : Status - " +
+                                apiStatusCodeData.apiStatusCodes.getStatusCode() + "/" +
+                                apiStatusCodeData.apiStatusCodes.getStatusMessage());
+                    } else {
+                        Log.d(LOG_TAG_I, "Json Error String is null");
+                    }
+                }
+            } else if (validateHttpResponseCode(mHttpStatusCode)) {
                 return true;
             }
             return false;
@@ -294,15 +305,18 @@ public class PopularMoviesActivityFragment extends Fragment {
                 urlConnection.connect();
 
                 // Referred Android API guide
-                setResponseCode(urlConnection.getResponseCode());
-                setResponseMessage(urlConnection.getResponseMessage());
+                apiStatusCodeData = new APIStatusCodeData();
+                apiStatusCodeData.apiStatusCodes.setHttpStatusCode(urlConnection.getResponseCode());
+                apiStatusCodeData.apiStatusCodes.setHttpStatusMessage(urlConnection.getResponseMessage());
+
+                mHttpStatusCode = apiStatusCodeData.apiStatusCodes.getHttpStatusCode();
 
                 if (!checkResponseCode(urlConnection.getErrorStream())) {
                     return null;
                 }
 
                 jsonStr = readJSONStringFromIOStream(urlConnection.getInputStream());
-                Log.d(LOG_TAG_I, "Json String - " + jsonStr);
+                Log.d(LOG_TAG_I, "doInBackground : Json String - " + jsonStr);
             } catch (IOException e) {
                 Log.e(LOG_TAG_I, "doInBackground : IOException");
                 e.printStackTrace();
@@ -318,11 +332,21 @@ public class PopularMoviesActivityFragment extends Fragment {
         protected void onPostExecute(String strings) {
             super.onPostExecute(strings);
 
-            if (getResponseCode() == HTTP_CLIENT_ERROR_BAD_REQUEST) {
+            if (!validateHttpResponseCode(mHttpStatusCode)){
                 Toast.makeText(getContext(),
                         "Invalid API key!\nYou must be granted a valid key.",
                         Toast.LENGTH_SHORT)
                         .show();
+            }else if (validateHttpResponseCode(mHttpStatusCode)){
+                MovieListData movieListData = new MovieListData(strings);
+                if (movieListData.parseMovieListData()) {
+                    Toast.makeText(getContext(),
+                            "Total Movies in MovieList is - " + movieListData.getMovieCount(),
+                            Toast.LENGTH_SHORT)
+                            .show();
+                }else{
+                    Log.e(LOG_TAG_I, "onPostExecute : parseMovieListData returned null");
+                }
             }
         }
     }
