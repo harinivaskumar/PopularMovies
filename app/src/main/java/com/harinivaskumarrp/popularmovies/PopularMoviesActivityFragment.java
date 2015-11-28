@@ -21,9 +21,12 @@ import java.net.URL;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class PopularMoviesActivityFragment extends Fragment {
+public class PopularMoviesActivityFragment extends Fragment implements AdapterView.OnItemClickListener{
 
     private final String LOG_TAG = PopularMoviesActivityFragment.class.getSimpleName();
+
+    private ImageViewAdapter mImageViewAdapter = null;
+    private GridView mGridView = null;
 
     public PopularMoviesActivityFragment() {
     }
@@ -37,19 +40,18 @@ public class PopularMoviesActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_popular_movies, container, false);
-        ImageViewAdapter imageViewAdapter = new ImageViewAdapter(getContext());
 
-        GridView gridview = (GridView) rootView.findViewById(R.id.gridview);
-        gridview.setAdapter(imageViewAdapter);
+        mImageViewAdapter = new ImageViewAdapter(getContext());
+        mImageViewAdapter.setMovieList(null);
 
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v,
-                                    int position, long id) {
-                Toast.makeText(getContext(), "" + (1 + position), Toast.LENGTH_SHORT).show();
-            }
-        });
+        mGridView = (GridView) rootView.findViewById(R.id.gridview);
+        mGridView.setOnItemClickListener(this);
 
         return rootView;
+    }
+
+    public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+        Toast.makeText(getContext(), "" + (1 + position), Toast.LENGTH_SHORT).show();
     }
 
     // Added from StackOverFlow
@@ -146,10 +148,12 @@ public class PopularMoviesActivityFragment extends Fragment {
             }else if (tmdbUrlBuilder.validateHttpResponseCode()){
                 MovieListData movieListData = new MovieListData(jsonString);
                 if (movieListData.parseMovieListData()) {
+                    mImageViewAdapter.setMovieList(movieListData.movieList);
                     Toast.makeText(getContext(),
                             "Total Movies in MovieList is - " + movieListData.getMovieCount(),
                             Toast.LENGTH_SHORT)
                             .show();
+                    mGridView.setAdapter(mImageViewAdapter);
                 }else{
                     Log.e(LOG_TAG_I, "onPostExecute : parseMovieListData returned null");
                 }

@@ -3,8 +3,10 @@ package com.harinivaskumarrp.popularmovies;
 import android.util.Log;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by Hari Nivas Kumar R P on 11/28/2015.
@@ -14,6 +16,7 @@ class MovieVideosData extends JSONParser {
     private final String LOG_TAG_MV = MovieVideosData.class.getSimpleName();
 
     public ArrayList<Video> videoList = null;
+    private Video[] videos = null;
 
     private static final String TAG_KEY = "key";
     private static final String TAG_NAME = "name";
@@ -42,27 +45,48 @@ class MovieVideosData extends JSONParser {
         return videoList.size();
     }
 
+    private Video[] createVideos(int size){
+        return new Video[size];
+    }
+
+    private Video[] getVideos(){
+        return videos;
+    }
+
+    private void setVideos(Video[] videos){
+        this.videos = videos;
+    }
+
+    public Video getVideo(int position){
+        return videos[position];
+    }
+
+    private void setVideo(int position, JSONObject jsonObject) throws JSONException{
+        videos[position] = new Video();
+
+        videos[position].setVideoId(jsonObject.getString(JP_TAG_ID));
+        videos[position].setKey(jsonObject.getString(TAG_KEY));
+        videos[position].setName(jsonObject.getString(TAG_NAME));
+        videos[position].setPublishedSite(jsonObject.getString(TAG_SITE));
+        videos[position].setType(jsonObject.getString(TAG_TYPE));
+    }
+
+    private void populateVideoList(){
+        videoList = null;
+        videoList = new ArrayList<Video>(Arrays.asList(getVideos()));
+    }
+
     public boolean parseMovieVideosData() {
         if ((getJsonData() != null) && (getJsonObject() != null)) {
             try {
-                Video video = null;
+                setVideos(createVideos(getJSONArrayLength()));
 
                 for (int index = 0; index < getJSONArrayLength(); index++) {
                     jsonResults = getJsonArray().getJSONObject(index);
-
-                    if (video == null) {
-                        video = new Video();
-                    }
-
-                    video.setVideoId(jsonResults.getString(JP_TAG_ID));
-                    video.setKey(jsonResults.getString(TAG_KEY));
-                    video.setName(jsonResults.getString(TAG_NAME));
-                    video.setPublishedSite(jsonResults.getString(TAG_SITE));
-                    video.setType(jsonResults.getString(TAG_TYPE));
-
-                    videoList.add(video);
+                    setVideo(index, jsonResults);
                 }
-                Log.d(LOG_TAG_MV, "parseMovieVideosData : Total Read Videos - " + getVideoCount());
+                populateVideoList();
+                Log.d(LOG_TAG_MV, "parseMovieVideosData : Total Read Videos - " + videos.length);
             } catch (JSONException e) {
                 Log.e(LOG_TAG_MV, "parseMovieVideosData : JSONException");
                 e.printStackTrace();

@@ -3,8 +3,10 @@ package com.harinivaskumarrp.popularmovies;
 import android.util.Log;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by Hari Nivas Kumar R P on 11/28/2015.
@@ -14,6 +16,7 @@ class MovieListData extends JSONParser{
     private final String LOG_TAG_ML = MovieListData.class.getSimpleName();
 
     public ArrayList<Movie> movieList = null;
+    private Movie[] movies = null;
 
     private static final String TAG_ORIGINAL_TITLE = "original_title";
     private static final String TAG_POSTER_PATH = "poster_path";
@@ -43,28 +46,49 @@ class MovieListData extends JSONParser{
         return movieList.size();
     }
 
+    private Movie[] createMovies(int size){
+        return new Movie[size];
+    }
+
+    private Movie[] getMovies(){
+        return movies;
+    }
+
+    private void setMovies(Movie[] movies){
+        this.movies = movies;
+    }
+
+    public Movie getMovie(int position){
+        return movies[position];
+    }
+
+    private void setMovie(int position, JSONObject jsonObject) throws JSONException{
+        movies[position] = new Movie();
+
+        movies[position].setMovieId(jsonObject.getString(JP_TAG_ID));
+        movies[position].setTitle(jsonObject.getString(TAG_ORIGINAL_TITLE));
+        movies[position].setPoster(jsonObject.getString(TAG_POSTER_PATH));
+        movies[position].setOverview(jsonObject.getString(TAG_OVERVIEW));
+        movies[position].setRating(jsonObject.getString(TAG_USER_RATING));
+        movies[position].setReleaseDate(jsonObject.getString(TAG_RELEASE_DATE));
+    }
+
+    private void populateMovieList(){
+        movieList = null;
+        movieList = new ArrayList<Movie>(Arrays.asList(getMovies()));
+    }
+
     public boolean parseMovieListData() {
         if ((getJsonData() != null) && (getJsonObject() != null)) {
             try {
-                Movie movie = null;
+                setMovies(createMovies(getJSONArrayLength()));
 
                 for (int index = 0; index < getJSONArrayLength(); index++) {
                     jsonResults = getJsonArray().getJSONObject(index);
-
-                    if (movie == null) {
-                        movie = new Movie();
-                    }
-
-                    movie.setMovieId(jsonResults.getString(JP_TAG_ID));
-                    movie.setTitle(jsonResults.getString(TAG_ORIGINAL_TITLE));
-                    movie.setPoster(jsonResults.getString(TAG_POSTER_PATH));
-                    movie.setOverview(jsonResults.getString(TAG_OVERVIEW));
-                    movie.setRating(jsonResults.getString(TAG_USER_RATING));
-                    movie.setReleaseDate(jsonResults.getString(TAG_RELEASE_DATE));
-
-                    movieList.add(movie);
+                    setMovie(index, jsonResults);
                 }
-                Log.d(LOG_TAG_ML, "parseMovieListData : Total Read Movies - " + getMovieCount());
+                populateMovieList();
+                Log.d(LOG_TAG_ML, "parseMovieListData : Total Read Movies - " + movies.length);
             } catch (JSONException e) {
                 Log.e(LOG_TAG_ML, "parseMovieListData : JSONException");
                 e.printStackTrace();

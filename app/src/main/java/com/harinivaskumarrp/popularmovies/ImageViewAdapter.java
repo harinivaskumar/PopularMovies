@@ -8,46 +8,68 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+
 /**
  * Created by Hari Nivas Kumar R P on 11/27/2015.
  */
 
 public class ImageViewAdapter extends BaseAdapter {
 
+    private final String LOG_TAG = ImageViewAdapter.class.getSimpleName();
+
+    private final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/";
+    private final String POSTER_IMAGE_SIZE = "w185";
+
     private Context mContext;
-    private String[] mPosterPaths = {
-            "/D6e8RJf2qUstnfkTslTXNTUAlT.jpg",
-            "/1n9D32o30XOHMdMWuIT4AaA5ruI.jpg",
-            "/5JU9ytZJyR3zmClGmVm9q4Geqbd.jpg",
-            "/jjBgi2r5cRt36xF6iNUEhzscEcb.jpg",
-            "/A7HtCxFe7Ms8H7e7o2zawppbuDT.jpg",
-            "/l3tmn2WOAIgLyGP7zcsTYkl5ejH.jpg",
-            "/q0R4crx2SehcEEQEkYObktdeFy.jpg",
-            "/g23cs30dCMiG4ldaoVNP1ucjs6.jpg",
-            "/l3Lb8UWmqfXY9kr9YhJXvnTvf4I.jpg",
-            "/vlTPQANjLYTebzFJM1G4KeON0cb.jpg",
-            "/cWERd8rgbw7bCMZlwP207HUXxym.jpg",
-            "/qey0tdcOp9kCDdEZuJ87yE3crSe.jpg",
-            "/kqjL17yufvn9OVLyXYpvtyrFfak.jpg",
-            "/coss7RgL0NH6g4fC2s5atvf3dFO.jpg",
-            "/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg",
-            "/69Cz9VNQZy39fUE2g0Ggth6SBTM.jpg",
-            "/aAmfIX3TT40zUHGcCKrlOZRKC7u.jpg",
-            "/z2sJd1OvAGZLxgjBdSnQoLCfn3M.jpg",
-            "/4VmZeT8YkuMI6BrA623mHZDISlN.jpg",
-            "/t90Y3G8UGQp0f0DrP60wRu9gfrH.jpg"
-    };
+    private ArrayList<Movie> mMovieList = null;
+    private String mMoviePosterUrl = null;
 
     public ImageViewAdapter(Context context) {
         mContext = context;
+        mMovieList = new ArrayList<>();
+    }
+
+    private ArrayList<Movie> getMovieList() {
+        return mMovieList;
+    }
+
+    public void setMovieList(ArrayList<Movie> mMovieList) {
+        this.mMovieList = mMovieList;
+    }
+
+    private String getMoviePosterUrl() {
+        return mMoviePosterUrl;
+    }
+
+    private void setMoviePosterUrl(int position) {
+        String poster = "/" + getMovie(position).getPoster();
+        mMoviePosterUrl = (POSTER_BASE_URL + POSTER_IMAGE_SIZE + poster);
+    }
+
+    private Movie getMovie(int position) {
+        return mMovieList.get(position);
+    }
+
+    private int getMovieCount() {
+        return mMovieList.size();
+    }
+
+    private ImageView getNewImageView() {
+        ImageView imageView = new ImageView(mContext);
+        imageView.setAdjustViewBounds(true);
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        //imageView.setPadding(0,0,0,0);
+        return imageView;
     }
 
     public int getCount() {
-        return (mPosterPaths.length);
+        return getMovieCount();
     }
 
-    public Object getItem(int position) {
-        return null;
+    public String getItem(int position) {
+        setMoviePosterUrl(position);
+        return getMoviePosterUrl();
     }
 
     public long getItemId(int position) {
@@ -56,20 +78,17 @@ public class ImageViewAdapter extends BaseAdapter {
 
     // create a new ImageView for each item referenced by the Adapter
     public View getView(int position, View convertView, ViewGroup parent) {
-        ImageView imageView;
-
-        if (convertView == null) {
-            // if it's not recycled, initialize some attributes
-            imageView = new ImageView(mContext);
-            imageView.setAdjustViewBounds(true);
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            //imageView.setPadding(0,0,0,0);
+        ImageView imageView = null;
+        if (convertView == null) { // if it's not recycled, initialize some attributes
+            imageView = getNewImageView();
         } else {
             imageView = (ImageView) convertView;
         }
 
+        setMoviePosterUrl(position);
+
         Picasso.with(mContext)
-                .load("http://image.tmdb.org/t/p/w185/" + mPosterPaths[position])
+                .load(getMoviePosterUrl())
                 .into(imageView);
         return imageView;
     }
