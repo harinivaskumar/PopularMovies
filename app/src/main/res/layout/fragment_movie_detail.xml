@@ -12,39 +12,115 @@
         android:weightSum="1">
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:id="@+id/movie_title"
-            android:textSize="40sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:gravity="center"
-            android:textStyle="bold"/>
+            android:linksClickable="false"
+            android:longClickable="false"
+            android:text="@string/movie_title_str"
+            android:textColor="@color/background_floating_material_dark"
+            android:textSize="40sp"
+            android:textStyle="bold" />
+
         <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:id="@+id/movie_poster"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
             android:layout_gravity="center"
-            android:layout_marginTop="25dp"/>
-        <TextView
+            android:layout_marginTop="25dp"
+            android:contentDescription="@string/image_content_description_str"
+            android:scaleType="centerCrop"
+            android:src="@android:drawable/sym_def_app_icon" />
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/movie_overview"
-            android:layout_gravity="center"
-            android:textSize="20sp"
-            android:layout_marginTop="15dp"/>
-        <TextView
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="2dp"
+                android:layout_marginTop="15dp"
+                android:text="@string/overview_title_str"
+                android:textColor="@color/background_floating_material_dark"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/movie_overview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginLeft="6dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="3dp"
+                android:text="@string/overview_content_str"
+                android:textColor="@color/background_floating_material_dark"
+                android:textSize="17sp"
+                android:textStyle="italic" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/movie_rating"
-            android:layout_gravity="center"
-            android:textSize="20sp"
-            android:layout_marginTop="15dp"/>
-        <TextView
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginTop="5dp"
+                android:text="@string/rating_title_str"
+                android:textColor="@color/background_floating_material_dark"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/movie_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="7dp"
+                android:layout_marginTop="3dp"
+                android:text="@string/rating_content_str"
+                android:textColor="@color/background_floating_material_dark"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/movie_release_date"
-            android:layout_gravity="center"
-            android:textSize="20sp"
-            android:layout_marginTop="15dp"
-            android:layout_marginBottom="10dp"/>
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginTop="5dp"
+                android:text="@string/release_title_str"
+                android:textColor="@color/background_floating_material_dark"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/movie_release_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="7dp"
+                android:layout_marginTop="3dp"
+                android:text="@string/release_content_str"
+                android:textColor="@color/background_floating_material_dark"
+                android:textSize="15sp" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>
