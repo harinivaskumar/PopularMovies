@@ -80,7 +80,7 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
                 setMinVoteCountStr(prefs.getString(getString(R.string.pref_min_vote_key_config),
                         getString(R.string.pref_min_vote_default)));
 
-                updateMovieList(mSortByTypeStr, mPageNumberStr, mMinVoteCountStr);
+                updateMovieList(getSortByTypeStr(), getPageNumberStr(), getMinVoteCountStr());
                 Log.d(LOG_TAG, "onStart : Movie ArrayList is Empty, so access Internet to Fetch MovieList!");
             }else{
                 paintWithMoviePosters();
@@ -88,7 +88,7 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
             }
             Log.d(LOG_TAG, "onStart : Prefs - " +
                     "SortByType[" + getSortByTypeStr() + "] " +
-                    "PageNumber[" + getMinVoteCountStr() + "] " +
+                    "PageNumber[" + getPageNumberStr() + "] " +
                     "MinVoteCount[" + getMinVoteCountStr() + "]");
         } else {
             Log.i(LOG_TAG, "onStart : You are Offline. Please, check your Network Connection!");
@@ -102,28 +102,38 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
     @Override
     public void onResume(){
         super.onResume();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        if (isNetworkAvailable()) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        String sortByTypeNewStr = prefs.getString(getString(R.string.pref_sort_key),
-                getString(R.string.pref_sort_value_popularity));
-        String pageNumberNewStr = prefs.getString(getString(R.string.pref_page_key_config),
-                getString(R.string.pref_page_default));
-        String minVoteCountNewStr = prefs.getString(getString(R.string.pref_min_vote_key_config),
-                getString(R.string.pref_min_vote_default));
+            String sortByTypeNewStr = prefs.getString(getString(R.string.pref_sort_key),
+                    getString(R.string.pref_sort_value_popularity));
+            String pageNumberNewStr = prefs.getString(getString(R.string.pref_page_key_config),
+                    getString(R.string.pref_page_default));
+            String minVoteCountNewStr = prefs.getString(getString(R.string.pref_min_vote_key_config),
+                    getString(R.string.pref_min_vote_default));
 
-        Log.d(LOG_TAG, "onResume : Prefs - " +
-                "SortByType[" + getSortByTypeStr() + "] " +
-                "PageNumber[" + getMinVoteCountStr() + "] " +
-                "MinVoteCount[" + getMinVoteCountStr() + "]");
+            Log.d(LOG_TAG, "onResume : Prefs - " +
+                    "SortByType[" + sortByTypeNewStr + "] " +
+                    "PageNumber[" + pageNumberNewStr + "] " +
+                    "MinVoteCount[" + minVoteCountNewStr + "]");
 
-        if ((getSortByTypeStr().equals(sortByTypeNewStr)) &&
-            (getPageNumberStr().equals(pageNumberNewStr)) &&
-            (getMinVoteCountStr().equals(minVoteCountNewStr))) {
-            paintWithMoviePosters();
-            Log.d(LOG_TAG, "onResume : Movie Pref unchanged. If required just do Painting!");
-        }else{
-            updateMovieList(sortByTypeNewStr, pageNumberNewStr, minVoteCountNewStr);
-            Log.d(LOG_TAG, "onResume : Movie Pref changed. So, access internet to Fetch New MovieList!");
+            if ((getSortByTypeStr().equals(sortByTypeNewStr)) &&
+                    (getPageNumberStr().equals(pageNumberNewStr)) &&
+                    (getMinVoteCountStr().equals(minVoteCountNewStr))) {
+
+                paintWithMoviePosters();
+                Log.d(LOG_TAG, "onResume : Movie Pref unchanged. If required just do Painting!");
+            } else {
+
+                updateMovieList(sortByTypeNewStr, pageNumberNewStr, minVoteCountNewStr);
+                Log.d(LOG_TAG, "onResume : Movie Pref changed. So, access internet to Fetch New MovieList!");
+            }
+        } else {
+            Log.i(LOG_TAG, "onResume : You are Offline. Please, check your Network Connection!");
+            Toast.makeText(getContext(),
+                    "You are Offline.\nPlease, check your Network Connection!",
+                    Toast.LENGTH_LONG)
+                    .show();
         }
     }
 
@@ -132,11 +142,10 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
         Log.d(LOG_TAG, "onSaveInstanceState : Save the Prefs Strings!");
         outState.putString(KEY_SORT_BY_TYPE, getSortByTypeStr());
         outState.putString(KEY_PAGE_NUMBER, getPageNumberStr());
-        outState.putString(KEY_MOVIE_LIST, getMinVoteCountStr());
+        outState.putString(KEY_MIN_VOTE_COUNT, getMinVoteCountStr());
 
-        Log.d(LOG_TAG, "onSaveInstanceState : Save the Moive Parcel as 'movieList'!");
+        Log.d(LOG_TAG, "onSaveInstanceState : Save the Movie Parcel as 'movieList'!");
         outState.putParcelableArrayList(KEY_MOVIE_LIST, movieArrayList);
-
         super.onSaveInstanceState(outState);
     }
 
@@ -197,7 +206,7 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
 
     private void updateMovieList(String sortByTypeStr, String pageNumberStr, String minVoteCountStr) {
         setSortByTypeStr(sortByTypeStr);
-        setMinVoteCountStr(pageNumberStr);
+        setPageNumberStr(pageNumberStr);
         setMinVoteCountStr(minVoteCountStr);
 
         TMDBUrlBuilder tmdbUrlBuilder = new TMDBUrlBuilder();
