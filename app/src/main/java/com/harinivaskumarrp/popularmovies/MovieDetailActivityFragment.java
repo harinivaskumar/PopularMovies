@@ -3,14 +3,11 @@ package com.harinivaskumarrp.popularmovies;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -51,16 +48,13 @@ public class MovieDetailActivityFragment extends Fragment {
             textView[index] = (TextView) rootView.findViewById(textId[index]);
         }
         textView[0].setText(movie.getTitle());
-        textView[1].setText("Movie Overview : \n" + movie.getOverview());
-        textView[2].setText("Rating : " + movie.getRating());
-        textView[3].setText("Release Date : " + movie.getReleaseDate());
-
-        Log.v(LOG_TAG, "onCreateView : PosterPath[" + mMoviePosition + "] is -- " + movie.getPoster());
+        textView[1].setText(movie.getOverview());
+        textView[2].setText(movie.getRating());
+        textView[3].setText(movie.getReleaseDate());
 
         ImageView moviePosterImageView = (ImageView) rootView.findViewById(R.id.movie_poster);
-        Picasso.with(PopularMoviesActivityFragment.mContext)
-                .load(movie.getMoviePosterUrl(Movie.POSTER_IMAGE_SIZE2))
-                .into(moviePosterImageView);
+        movie.loadImageFromPicasso(Movie.POSTER_IMAGE_SIZE2,
+                movie, moviePosterImageView);
 
         return rootView;
     }

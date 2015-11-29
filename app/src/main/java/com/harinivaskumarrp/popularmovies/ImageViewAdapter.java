@@ -6,8 +6,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Picasso;
-
 import java.util.ArrayList;
 
 /**
@@ -71,9 +69,9 @@ public class ImageViewAdapter extends BaseAdapter {
             imageView = (ImageView) convertView;
         }
 
-        Picasso.with(mContext)
-                .load(getMovie(position).getMoviePosterUrl(Movie.POSTER_IMAGE_SIZE1))
-                .into(imageView);
+        getMovie(position).loadImageFromPicasso(Movie.POSTER_IMAGE_SIZE2,
+                getMovie(position), imageView);
+
         return imageView;
     }
 }

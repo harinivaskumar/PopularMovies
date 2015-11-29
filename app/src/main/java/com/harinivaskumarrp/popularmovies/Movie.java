@@ -2,6 +2,10 @@ package com.harinivaskumarrp.popularmovies;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
+import android.widget.ImageView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -9,6 +13,8 @@ import java.util.ArrayList;
  * Created by Hari Nivas Kumar R P on 11/28/2015.
  */
 public class Movie implements Parcelable{
+
+    private final String LOG_TAG = Movie.class.getSimpleName();
 
     private final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/";
 
@@ -28,7 +34,10 @@ public class Movie implements Parcelable{
     private ArrayList<Review> reviewList;
     private ArrayList<Video> videoList;
 
+    private boolean isPosterAvailable;
+
     private String[] mMoviePosterUrl = new String[POSTER_IMAGE_MAX];
+    private int mMoviePosterResId;
 
     public Movie() {
     }
@@ -94,7 +103,11 @@ public class Movie implements Parcelable{
     }
 
     public void setReleaseDate(String releaseDate) {
-        this.releaseDate = releaseDate;
+        if (releaseDate == null || "null".equals(releaseDate)){
+            this.releaseDate = "Not Available!";
+        }else {
+            this.releaseDate = releaseDate;
+        }
     }
 
     public String getRating() {
@@ -102,7 +115,11 @@ public class Movie implements Parcelable{
     }
 
     public void setRating(String rating) {
-        this.rating = rating;
+        if (rating == null || "null".equals(rating)){
+            this.rating = "NA";
+        }else{
+            this.rating = rating;
+        }
     }
 
     public String getOverview() {
@@ -110,7 +127,11 @@ public class Movie implements Parcelable{
     }
 
     public void setOverview(String overview) {
-        this.overview = overview;
+        if (overview == null || "null".equals(overview)){
+            this.overview = "Sorry, Overview not Available!";
+        }else{
+            this.overview = overview;
+        }
     }
 
     public String getPoster() {
@@ -118,8 +139,14 @@ public class Movie implements Parcelable{
     }
 
     public void setPoster(String poster) {
-        this.poster = poster;
-        createMoviePosterUrl();
+        if (poster == null || "null".equals(poster)){
+            setPosterAvailable(false);
+            setMoviePosterResId(R.drawable.movie_poster_coming_soon);
+        }else {
+            setPosterAvailable(true);
+            this.poster = poster;
+            createMoviePosterUrl();
+        }
     }
 
     public String getTitle() {
@@ -154,6 +181,14 @@ public class Movie implements Parcelable{
         return videoList.size();
     }
 
+    public boolean getPosterAvailable(){
+        return isPosterAvailable;
+    }
+
+    private void setPosterAvailable(boolean isPosterAvailable){
+        this.isPosterAvailable = isPosterAvailable;
+    }
+
     private void createMoviePosterUrl() {
         setMoviePosterUrl(POSTER_IMAGE_SIZE1);
         setMoviePosterUrl(POSTER_IMAGE_SIZE2);
@@ -174,4 +209,47 @@ public class Movie implements Parcelable{
                     (POSTER_BASE_URL + POSTER_IMAGE_XLARGE + poster);
         }
     }
+
+    public int getMoviePosterResId (){
+        return mMoviePosterResId;
+    }
+
+    private void setMoviePosterResId (int moviePosterResId){
+        this.mMoviePosterResId = moviePosterResId;
+    }
+
+    public void loadImageFromPicasso(int imageSize, final Movie movie, ImageView imageView){
+        if (movie.getPosterAvailable()) {
+            //Log.v(LOG_TAG, "loadImageFromPicasso : Poster MovieURL is - " + movie.getPoster());
+            Picasso.with(PopularMoviesActivityFragment.mContext)
+                    .load(movie.getMoviePosterUrl(imageSize))
+                    .into(imageView, new com.squareup.picasso.Callback() {
+                        @Override
+                        public void onSuccess() {
+                        }
+
+                        @Override
+                        public void onError() {
+                            Log.d(LOG_TAG, "loadImageFromPicasso : " +
+                                    "Failed to Load image from MovieURL - " + movie.getPoster());
+                        }
+                    });
+        }else{
+            //Log.v(LOG_TAG, "loadImageFromPicasso : Poster Resource is - R.drawable.movie_poster_coming_soon!");
+            Picasso.with(PopularMoviesActivityFragment.mContext)
+                    .load(movie.getMoviePosterResId())
+                    .into(imageView, new com.squareup.picasso.Callback() {
+                        @Override
+                        public void onSuccess() {
+                        }
+
+                        @Override
+                        public void onError() {
+                            Log.d(LOG_TAG, "loadImageFromPicasso : " +
+                                    "Failed to Load image from Resource - R.drawable.movie_poster_coming_soon");
+                        }
+                    });
+        }
+    }
+
 }
