@@ -1,11 +1,14 @@
 package com.harinivaskumarrp.popularmovies;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 
 /**
  * Created by Hari Nivas Kumar R P on 11/28/2015.
  */
-public class Movie {
+public class Movie implements Parcelable{
 
     String movieId;
     String title;
@@ -27,6 +30,45 @@ public class Movie {
         this.releaseDate = releaseDate;
         this.movieId = movieId;
     }
+
+    public Movie(Parcel parcel){
+        setMovieId(parcel.readString());
+        setTitle(parcel.readString());
+        setPoster(parcel.readString());
+        setOverview(parcel.readString());
+        setRating(parcel.readString());
+        setReleaseDate(parcel.readString());
+        //parcel.readArrayList(Review.class.getClassLoader());
+        //parcel.readArrayList(Video.class.getClassLoader());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int flags) {
+        parcel.writeString(getMovieId());
+        parcel.writeString(getTitle());
+        parcel.writeString(getPoster());
+        parcel.writeString(getOverview());
+        parcel.writeString(getRating());
+        parcel.writeString(getReleaseDate());
+    }
+
+    public final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel parcel) {
+            return new Movie(parcel);
+        }
+
+        @Override
+        public Movie[] newArray(int index) {
+            return new Movie[index];
+        }
+
+    };
 
     public String getMovieId() {
         return movieId;
