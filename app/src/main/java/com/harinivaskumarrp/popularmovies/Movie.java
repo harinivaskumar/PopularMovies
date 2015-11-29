@@ -10,14 +10,25 @@ import java.util.ArrayList;
  */
 public class Movie implements Parcelable{
 
-    String movieId;
-    String title;
-    String poster;
-    String overview;
-    String rating;
-    String releaseDate;
-    ArrayList<Review> reviewList;
-    ArrayList<Video> videoList;
+    private final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/";
+
+    private final String POSTER_IMAGE_THUMBNAIL = "w185";
+    private final String POSTER_IMAGE_XLARGE = "w500";
+
+    public final static int POSTER_IMAGE_SIZE1 = 0;
+    public final static int POSTER_IMAGE_SIZE2 = 1;
+    private final static int POSTER_IMAGE_MAX = 2;
+
+    private String movieId;
+    private String title;
+    private String poster;
+    private String overview;
+    private String rating;
+    private String releaseDate;
+    private ArrayList<Review> reviewList;
+    private ArrayList<Video> videoList;
+
+    private String[] mMoviePosterUrl = new String[POSTER_IMAGE_MAX];
 
     public Movie() {
     }
@@ -108,6 +119,7 @@ public class Movie implements Parcelable{
 
     public void setPoster(String poster) {
         this.poster = poster;
+        createMoviePosterUrl();
     }
 
     public String getTitle() {
@@ -140,5 +152,26 @@ public class Movie implements Parcelable{
 
     public int getVideoCount(){
         return videoList.size();
+    }
+
+    private void createMoviePosterUrl() {
+        setMoviePosterUrl(POSTER_IMAGE_SIZE1);
+        setMoviePosterUrl(POSTER_IMAGE_SIZE2);
+    }
+
+    public String getMoviePosterUrl(int imageSize) {
+        return mMoviePosterUrl[imageSize];
+    }
+
+    private void setMoviePosterUrl(int imageSize) {
+        String poster = "/" + getPoster();
+
+        if (imageSize == POSTER_IMAGE_SIZE1) {
+            mMoviePosterUrl[POSTER_IMAGE_SIZE1] =
+                    (POSTER_BASE_URL + POSTER_IMAGE_THUMBNAIL + poster);
+        }else if(imageSize == POSTER_IMAGE_SIZE2){
+            mMoviePosterUrl[POSTER_IMAGE_SIZE2] =
+                    (POSTER_BASE_URL + POSTER_IMAGE_XLARGE + poster);
+        }
     }
 }

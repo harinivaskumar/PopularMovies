@@ -1,6 +1,7 @@
 package com.harinivaskumarrp.popularmovies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -33,7 +34,8 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
     private final String KEY_MIN_VOTE_COUNT = "minVoteCount";
     private final String KEY_MOVIE_LIST = "movieList";
 
-    private ArrayList<Movie> movieArrayList;
+    public static Context mContext;
+    public static ArrayList<Movie> movieArrayList;
     private ImageViewAdapter mImageViewAdapter = null;
     private GridView mGridView = null;
 
@@ -45,6 +47,7 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext = getContext();
         if (savedInstanceState == null ||
                 !savedInstanceState.containsKey(KEY_MOVIE_LIST) ||
                 !savedInstanceState.containsKey(KEY_SORT_BY_TYPE) ||
@@ -52,6 +55,7 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
                 !savedInstanceState.containsKey(KEY_MIN_VOTE_COUNT)){
 
             Log.d(LOG_TAG, "onCreate : Movie Parcel 'movieList' not found. Access the Internet for Movie list!");
+
             movieArrayList = new ArrayList<Movie>();
             mSortByTypeStr = mPageNumberStr = mMinVoteCountStr = null;
         }
@@ -165,7 +169,10 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
     }
 
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-        Toast.makeText(getContext(), "" + (1 + position), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), "" + (1 + position), Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+        intent.putExtra(Intent.EXTRA_TEXT, "" + position);
+        startActivity(intent);
     }
 
     private String getSortByTypeStr() {

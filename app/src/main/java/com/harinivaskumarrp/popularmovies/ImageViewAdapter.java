@@ -18,12 +18,8 @@ public class ImageViewAdapter extends BaseAdapter {
 
     private final String LOG_TAG = ImageViewAdapter.class.getSimpleName();
 
-    private final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/";
-    private final String POSTER_IMAGE_SIZE = "w185";
-
     private Context mContext;
     private ArrayList<Movie> mMovieList = null;
-    private String mMoviePosterUrl = null;
 
     public ImageViewAdapter(Context context) {
         mContext = context;
@@ -36,15 +32,6 @@ public class ImageViewAdapter extends BaseAdapter {
 
     public void setMovieList(ArrayList<Movie> mMovieList) {
         this.mMovieList = mMovieList;
-    }
-
-    private String getMoviePosterUrl() {
-        return mMoviePosterUrl;
-    }
-
-    private void setMoviePosterUrl(int position) {
-        String poster = "/" + getMovie(position).getPoster();
-        mMoviePosterUrl = (POSTER_BASE_URL + POSTER_IMAGE_SIZE + poster);
     }
 
     private Movie getMovie(int position) {
@@ -68,8 +55,7 @@ public class ImageViewAdapter extends BaseAdapter {
     }
 
     public String getItem(int position) {
-        setMoviePosterUrl(position);
-        return getMoviePosterUrl();
+        return getMovie(position).getMoviePosterUrl(Movie.POSTER_IMAGE_SIZE1);
     }
 
     public long getItemId(int position) {
@@ -85,10 +71,8 @@ public class ImageViewAdapter extends BaseAdapter {
             imageView = (ImageView) convertView;
         }
 
-        setMoviePosterUrl(position);
-
         Picasso.with(mContext)
-                .load(getMoviePosterUrl())
+                .load(getMovie(position).getMoviePosterUrl(Movie.POSTER_IMAGE_SIZE1))
                 .into(imageView);
         return imageView;
     }
