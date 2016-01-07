@@ -169,10 +169,19 @@ public class MovieListFragment extends Fragment implements AdapterView.OnItemCli
     }
 
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-        //Toast.makeText(getContext(), "" + (1 + position), Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
-        intent.putExtra(Intent.EXTRA_TEXT, "" + position);
-        startActivity(intent);
+        if (PopularMoviesMainActivity.mTwoPane) {
+            /* TODO
+                 In TwoPanned mode When the item is selected,
+                 notify Movie Detail Fragment with proper movie position.
+            */
+//            PopularMoviesMainActivity.mPosition = "" + position;
+            Toast.makeText(getContext(), "" + (1 + position), Toast.LENGTH_SHORT).show();
+        }else{
+            //Toast.makeText(getContext(), "" + (1 + position), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+            intent.putExtra(Intent.EXTRA_TEXT, "" + position);
+            startActivity(intent);
+        }
     }
 
     private String getSortByTypeStr() {

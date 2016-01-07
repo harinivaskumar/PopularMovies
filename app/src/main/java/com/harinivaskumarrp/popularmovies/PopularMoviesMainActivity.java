@@ -9,12 +9,25 @@ import android.view.MenuItem;
 
 public class PopularMoviesMainActivity extends AppCompatActivity {
 
+    public static boolean mTwoPane = false;
+//    public static String mPosition = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popular_movies);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if (findViewById(R.id.fragment_movie_detail_container) != null){
+            mTwoPane = true;
+            if (savedInstanceState == null){
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_movie_detail_container, new MovieDetailFragment())
+                        .commit();
+            }
+        }else {
+            mTwoPane = false;
+        }
     }
 
     @Override

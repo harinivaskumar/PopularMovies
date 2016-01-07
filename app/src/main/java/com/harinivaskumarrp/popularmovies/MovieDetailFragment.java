@@ -1,8 +1,8 @@
 package com.harinivaskumarrp.popularmovies;
 
-import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,11 +29,27 @@ public class MovieDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         Intent intent = getActivity().getIntent();
-        String mMoviePosition = intent.getStringExtra(Intent.EXTRA_TEXT);
+        String mMoviePosition = null;
+        Movie movie = null;
+
+        if (intent!= null && intent.hasExtra(Intent.EXTRA_TEXT)){
+            mMoviePosition = intent.getStringExtra(Intent.EXTRA_TEXT);
+            movie = movieList.get(Integer.parseInt(mMoviePosition));
+        }else {
+//            if (PopularMoviesMainActivity.mPosition != null) {
+//                mMoviePosition = PopularMoviesMainActivity.mPosition;
+//            }else {
+//                mMoviePosition = 1 + "";
+//            }
+            movie = new Movie();
+            movie.setTitle("The Wrestler");
+            movie.setOverview("Aging wrestler Randy \"The Ram\" Robinson is long past his prime but still ready");
+            movie.setRating("6.94");
+            movie.setReleaseDate("2008-09-07");
+            movie.setPoster("/huooRmB7yksJyVVSkqOgitxlCec.jpg");
+        }
 
         View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
-
-        Movie movie = movieList.get(Integer.parseInt(mMoviePosition));
 
         int[] textId = {
                 R.id.movie_title,
