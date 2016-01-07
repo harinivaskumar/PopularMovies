@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".PopularMoviesActivity"
+            android:name=".PopularMoviesMainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -24,19 +24,19 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".PopularMoviesActivity">
+            android:parentActivityName=".PopularMoviesMainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.harinivaskumarrp.popularmovies.PopularMoviesActivity" />
+                android:value=".PopularMoviesMainActivity" />
         </activity>
         <activity
             android:name=".MovieDetailActivity"
             android:label="@string/title_activity_movie_detail"
-            android:parentActivityName=".PopularMoviesActivity"
+            android:parentActivityName=".PopularMoviesMainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.harinivaskumarrp.popularmovies.PopularMoviesActivity" />
+                android:value=".PopularMoviesMainActivity" />
         </activity>
     </application>
 

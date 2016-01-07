@@ -25,9 +25,9 @@ import java.util.ArrayList;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class PopularMoviesActivityFragment extends Fragment implements AdapterView.OnItemClickListener{
+public class MovieListFragment extends Fragment implements AdapterView.OnItemClickListener{
 
-    private final String LOG_TAG = PopularMoviesActivityFragment.class.getSimpleName();
+    private final String LOG_TAG = MovieListFragment.class.getSimpleName();
 
     private final String KEY_SORT_BY_TYPE = "sortByType";
     private final String KEY_PAGE_NUMBER = "pageNumber";
@@ -41,7 +41,7 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
 
     private String mSortByTypeStr, mPageNumberStr, mMinVoteCountStr;
 
-    public PopularMoviesActivityFragment() {
+    public MovieListFragment() {
     }
 
     @Override

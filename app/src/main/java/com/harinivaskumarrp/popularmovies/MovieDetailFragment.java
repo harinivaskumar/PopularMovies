@@ -14,14 +14,14 @@ import java.util.ArrayList;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MovieDetailActivityFragment extends Fragment {
+public class MovieDetailFragment extends Fragment {
 
-    private static final String LOG_TAG = MovieDetailActivityFragment.class.getSimpleName();
+    private static final String LOG_TAG = MovieDetailFragment.class.getSimpleName();
 
     private ArrayList<Movie> movieList = null;
 
-    public MovieDetailActivityFragment() {
-        movieList = PopularMoviesActivityFragment.movieArrayList;
+    public MovieDetailFragment() {
+        movieList = MovieListFragment.movieArrayList;
     }
 
     @Override

@@ -221,7 +221,7 @@ public class Movie implements Parcelable{
     public void loadImageFromPicasso(int imageSize, final Movie movie, ImageView imageView){
         if (movie.getPosterAvailable()) {
             //Log.v(LOG_TAG, "loadImageFromPicasso : Poster MovieURL is - " + movie.getPoster());
-            Picasso.with(PopularMoviesActivityFragment.mContext)
+            Picasso.with(MovieListFragment.mContext)
                     .load(movie.getMoviePosterUrl(imageSize))
                     .into(imageView, new com.squareup.picasso.Callback() {
                         @Override
@@ -236,7 +236,7 @@ public class Movie implements Parcelable{
                     });
         }else{
             //Log.v(LOG_TAG, "loadImageFromPicasso : Poster Resource is - R.drawable.movie_poster_coming_soon!");
-            Picasso.with(PopularMoviesActivityFragment.mContext)
+            Picasso.with(MovieListFragment.mContext)
                     .load(movie.getMoviePosterResId())
                     .into(imageView, new com.squareup.picasso.Callback() {
                         @Override
