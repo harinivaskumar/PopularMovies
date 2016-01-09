@@ -28,13 +28,9 @@ public class MovieDetailActivity extends AppCompatActivity {
             movieDetailFragment.setArguments(args);
 
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_movie_detail_container,
+                    .add(R.id.fragment_movie_detail_container,
                             movieDetailFragment,
                             MovieDetailFragment.MOVIE_DETAIL_FRAG_TAG)
-                    .commit();
-
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_movie_detail_container, new MovieDetailFragment())
                     .commit();
         }
     }
