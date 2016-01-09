@@ -38,6 +38,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".PopularMoviesMainActivity" />
         </activity>
+        <provider
+            android:authorities="com.harinivaskumarrp.popularmovies.data.MovieProvider"
+            android:name="com.harinivaskumarrp.popularmovies.data.generated.MovieProvider"
+            android:exported="false"/>
     </application>
 
 </manifest>
