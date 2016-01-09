@@ -3,6 +3,7 @@ package com.harinivaskumarrp.popularmovies.data;
 import net.simonvt.schematic.annotation.AutoIncrement;
 import net.simonvt.schematic.annotation.DataType;
 import net.simonvt.schematic.annotation.PrimaryKey;
+import net.simonvt.schematic.annotation.Unique;
 
 import javax.annotation.Nonnull;
 
@@ -15,7 +16,7 @@ public interface MovieColumns {
     @AutoIncrement
     public static final String _ID = "_id";
 
-    @DataType(DataType.Type.TEXT) @Nonnull
+    @DataType(DataType.Type.TEXT) @Nonnull @Unique
     public static final String MOVIE_ID = "movie_id";
 
     @DataType(DataType.Type.TEXT) @Nonnull

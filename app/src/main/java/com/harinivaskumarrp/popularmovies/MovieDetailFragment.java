@@ -1,6 +1,8 @@
 package com.harinivaskumarrp.popularmovies;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -9,6 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.harinivaskumarrp.popularmovies.data.MovieColumns;
+import com.harinivaskumarrp.popularmovies.data.MovieProvider;
 
 import java.util.ArrayList;
 
@@ -22,6 +27,8 @@ public class MovieDetailFragment extends Fragment {
     public static final String KEY_MOVIE_ITEM_POSITION = "movieItemPosition";
 
     private ArrayList<Movie> movieList = null;
+    private Movie mMovie = null;
+    private String mMoviePosition = null;
 
     public MovieDetailFragment() {
         movieList = MovieListFragment.movieArrayList;
@@ -33,17 +40,15 @@ public class MovieDetailFragment extends Fragment {
 
         Bundle arguments = getArguments();
         Intent intent = getActivity().getIntent();
-        String mMoviePosition = null;
-        Movie movie = null;
 
         if (intent!= null && intent.hasExtra(KEY_MOVIE_ITEM_POSITION)){
 //            mMoviePosition = intent.getStringExtra(Intent.EXTRA_TEXT);
             mMoviePosition = intent.getStringExtra(KEY_MOVIE_ITEM_POSITION);
-            movie = movieList.get(Integer.parseInt(mMoviePosition));
+            mMovie = movieList.get(Integer.parseInt(mMoviePosition));
         }else if (arguments != null){
             Log.d(LOG_TAG, "Hello! I am inside else if");
             mMoviePosition = arguments.getString(KEY_MOVIE_ITEM_POSITION);
-            movie = movieList.get(Integer.parseInt(mMoviePosition));
+            mMovie = movieList.get(Integer.parseInt(mMoviePosition));
         }else {
             Log.d(LOG_TAG, "Hello! I am inside else");
 //            if (PopularMoviesMainActivity.mPosition != null) {
@@ -51,12 +56,12 @@ public class MovieDetailFragment extends Fragment {
 //            }else {
 //                mMoviePosition = 1 + "";
 //            }
-            movie = new Movie();
-            movie.setTitle("The Wrestler");
-            movie.setOverview("Aging wrestler Randy \"The Ram\" Robinson is long past his prime but still ready");
-            movie.setRating("6.94");
-            movie.setReleaseDate("2008-09-07");
-            movie.setPoster("/huooRmB7yksJyVVSkqOgitxlCec.jpg");
+            mMovie = new Movie();
+            mMovie.setTitle("The Wrestler");
+            mMovie.setOverview("Aging wrestler Randy \"The Ram\" Robinson is long past his prime but still ready");
+            mMovie.setRating("6.94");
+            mMovie.setReleaseDate("2008-09-07");
+            mMovie.setPoster("/huooRmB7yksJyVVSkqOgitxlCec.jpg");
         }
 
         View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
@@ -73,15 +78,63 @@ public class MovieDetailFragment extends Fragment {
         for (int index = 0; index < 4; index++) {
             textView[index] = (TextView) rootView.findViewById(textId[index]);
         }
-        textView[0].setText(movie.getTitle());
-        textView[1].setText(movie.getOverview());
-        textView[2].setText(movie.getRating());
-        textView[3].setText(movie.getReleaseDate());
+        textView[0].setText(mMovie.getTitle());
+        textView[1].setText(mMovie.getOverview());
+        textView[2].setText(mMovie.getRating());
+        textView[3].setText(mMovie.getReleaseDate());
 
         ImageView moviePosterImageView = (ImageView) rootView.findViewById(R.id.movie_poster);
-        movie.loadImageFromPicasso(Movie.POSTER_IMAGE_SIZE2,
-                movie, moviePosterImageView);
+        mMovie.loadImageFromPicasso(Movie.POSTER_IMAGE_SIZE2,
+                mMovie, moviePosterImageView);
 
         return rootView;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mMoviePosition != null){
+            Cursor movieCursor = null;
+            try {
+                 movieCursor = getContext().getContentResolver().query(
+                        MovieProvider.Movies.CONTENT_URI,
+                        null,
+                        MovieColumns.MOVIE_ID + " = ?",
+                        new String[]{mMovie.getMovieId()},
+                        null);
+                if (movieCursor != null && movieCursor.moveToFirst()) {
+                    Log.d(LOG_TAG, "onPause : Entry[" + mMovie.getTitle() + "] already present in DB!");
+                } else {
+                    ContentValues movieContentValues = new ContentValues();
+
+                    movieContentValues.put(MovieColumns.MOVIE_ID, mMovie.getMovieId());
+                    movieContentValues.put(MovieColumns.TITLE, mMovie.getTitle());
+                    movieContentValues.put(MovieColumns.OVERVIEW, mMovie.getOverview());
+                    movieContentValues.put(MovieColumns.RATING, mMovie.getRating());
+                    movieContentValues.put(MovieColumns.RELEASE_DATE, mMovie.getReleaseDate());
+                    movieContentValues.put(MovieColumns.POSTER, mMovie.getMoviePosterUrl(Movie.POSTER_IMAGE_SIZE2));
+
+                    getActivity().getContentResolver()
+                            .insert(MovieProvider.Movies.CONTENT_URI, movieContentValues);
+                    Log.d(LOG_TAG, "onPause : New Entry[" + mMovie.getTitle() + "] added to DB!");
+                }
+            }catch (NullPointerException e){
+                Log.e(LOG_TAG, "onPause : NullPointerException@try for Cursor!");
+                e.printStackTrace();
+            }finally {
+                try {
+                    if (movieCursor != null)
+                        movieCursor.close();
+                }catch (NullPointerException e){
+                    Log.e(LOG_TAG, "onPause : NullPointerException@finally for Cursor!");
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
     }
 }

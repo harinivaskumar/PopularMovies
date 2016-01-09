@@ -4,6 +4,7 @@ import net.simonvt.schematic.annotation.AutoIncrement;
 import net.simonvt.schematic.annotation.DataType;
 import net.simonvt.schematic.annotation.PrimaryKey;
 import net.simonvt.schematic.annotation.References;
+import net.simonvt.schematic.annotation.Unique;
 
 import javax.annotation.Nonnull;
 
@@ -20,7 +21,7 @@ public interface ReviewColumns {
     @References(table = MovieDatabase.Tables.MOVIES, column = MovieColumns._ID)
     public static final String MOVIE_ID = "movie_id";
 
-    @DataType(DataType.Type.TEXT) @Nonnull
+    @DataType(DataType.Type.TEXT) @Nonnull @Unique
     public static final String REVIEW_ID = "review_id";
 
     @DataType(DataType.Type.TEXT) @Nonnull
