@@ -1,7 +1,6 @@
 package com.harinivaskumarrp.popularmovies;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -15,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -28,11 +28,13 @@ import java.util.ArrayList;
 public class MovieListFragment extends Fragment implements AdapterView.OnItemClickListener{
 
     private final String LOG_TAG = MovieListFragment.class.getSimpleName();
+    public static final String MOVIE_LIST_FRAG_TAG = "MLFTAG";
 
     private final String KEY_SORT_BY_TYPE = "sortByType";
     private final String KEY_PAGE_NUMBER = "pageNumber";
     private final String KEY_MIN_VOTE_COUNT = "minVoteCount";
     private final String KEY_MOVIE_LIST = "movieList";
+    private final String KEY_MOVIE_ITEM_POSITION = "mMovieItemPosition";
 
     public static Context mContext;
     public static ArrayList<Movie> movieArrayList;
@@ -40,6 +42,14 @@ public class MovieListFragment extends Fragment implements AdapterView.OnItemCli
     private GridView mGridView = null;
 
     private String mSortByTypeStr, mPageNumberStr, mMinVoteCountStr;
+    private int mMovieItemPosition = 0;
+
+    public interface Callback {
+        /**
+         * MovieDetailFragmentCallback for when an movie item has been selected.
+         */
+        public void onMovieItemSelected(int movieItemPosition);
+    }
 
     public MovieListFragment() {
     }
@@ -52,12 +62,14 @@ public class MovieListFragment extends Fragment implements AdapterView.OnItemCli
                 !savedInstanceState.containsKey(KEY_MOVIE_LIST) ||
                 !savedInstanceState.containsKey(KEY_SORT_BY_TYPE) ||
                 !savedInstanceState.containsKey(KEY_PAGE_NUMBER) ||
-                !savedInstanceState.containsKey(KEY_MIN_VOTE_COUNT)){
+                !savedInstanceState.containsKey(KEY_MIN_VOTE_COUNT) ||
+                !savedInstanceState.containsKey(KEY_MOVIE_ITEM_POSITION)){
 
             Log.d(LOG_TAG, "onCreate : Movie Parcel 'movieList' not found. Access the Internet for Movie list!");
 
             movieArrayList = new ArrayList<Movie>();
             mSortByTypeStr = mPageNumberStr = mMinVoteCountStr = null;
+            mMovieItemPosition = 0;
         }
         else {
             Log.d(LOG_TAG, "onCreate : Read the Prefs Strings!");
@@ -67,6 +79,9 @@ public class MovieListFragment extends Fragment implements AdapterView.OnItemCli
 
             Log.d(LOG_TAG, "onCreate : Movie Parcel 'movieList' found. Open & use this for Painting!");
             movieArrayList = savedInstanceState.getParcelableArrayList(KEY_MOVIE_LIST);
+
+            Log.d(LOG_TAG, "onCreate : Read the selected Movie Item Position!");
+            setMovieItemPosition(savedInstanceState.getInt(KEY_MOVIE_ITEM_POSITION));
         }
     }
 
@@ -150,6 +165,9 @@ public class MovieListFragment extends Fragment implements AdapterView.OnItemCli
 
         Log.d(LOG_TAG, "onSaveInstanceState : Save the Movie Parcel as 'movieList'!");
         outState.putParcelableArrayList(KEY_MOVIE_LIST, movieArrayList);
+
+        Log.d(LOG_TAG, "onSaveInstanceState : Save the selected MovieItem position as 'mMovieItemPosition'!");
+        outState.putInt(KEY_MOVIE_ITEM_POSITION, getMovieItemPosition());
         super.onSaveInstanceState(outState);
     }
 
@@ -169,19 +187,8 @@ public class MovieListFragment extends Fragment implements AdapterView.OnItemCli
     }
 
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-        if (PopularMoviesMainActivity.mTwoPane) {
-            /* TODO
-                 In TwoPanned mode When the item is selected,
-                 notify Movie Detail Fragment with proper movie position.
-            */
-//            PopularMoviesMainActivity.mPosition = "" + position;
-            Toast.makeText(getContext(), "" + (1 + position), Toast.LENGTH_SHORT).show();
-        }else{
-            //Toast.makeText(getContext(), "" + (1 + position), Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
-            intent.putExtra(Intent.EXTRA_TEXT, "" + position);
-            startActivity(intent);
-        }
+        ((Callback) getActivity()).onMovieItemSelected(position);
+        setMovieItemPosition(position);
     }
 
     private String getSortByTypeStr() {
@@ -206,6 +213,20 @@ public class MovieListFragment extends Fragment implements AdapterView.OnItemCli
 
     private void setMinVoteCountStr(String mMinVoteCountStr) {
         this.mMinVoteCountStr = mMinVoteCountStr;
+    }
+
+    private int getMovieItemPosition(){
+        return mMovieItemPosition;
+    }
+
+    private void setMovieItemPosition(int mMovieItemPosition){
+        if (isValidPosition()) {
+            this.mMovieItemPosition = mMovieItemPosition;
+        }
+    }
+
+    private boolean isValidPosition(){
+        return (mMovieItemPosition != ListView.INVALID_POSITION);
     }
 
     // Added from StackOverFlow
@@ -246,6 +267,14 @@ public class MovieListFragment extends Fragment implements AdapterView.OnItemCli
                 Toast.LENGTH_SHORT)
                 .show();*/
         mGridView.setAdapter(mImageViewAdapter);
+        restoreMoviePosterSelection();
+    }
+
+    private void restoreMoviePosterSelection(){
+        if (isValidPosition()) {
+            mGridView.setSelection(getMovieItemPosition());
+            mGridView.smoothScrollToPosition(getMovieItemPosition());
+        }
     }
 
     public class FetchMovieListTask extends AsyncTask<Void, Void, String> {

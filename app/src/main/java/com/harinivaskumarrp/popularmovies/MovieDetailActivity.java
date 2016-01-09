@@ -2,6 +2,7 @@ package com.harinivaskumarrp.popularmovies;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -17,6 +18,21 @@ public class MovieDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         if (savedInstanceState == null){
+            Intent intent = new Intent();
+            String movieItemPosition = intent.getStringExtra(MovieDetailFragment.KEY_MOVIE_ITEM_POSITION);
+
+            Bundle args = new Bundle();
+            args.putString(MovieDetailFragment.KEY_MOVIE_ITEM_POSITION, "" + movieItemPosition);
+
+            Fragment movieDetailFragment = new MovieDetailFragment();
+            movieDetailFragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_movie_detail_container,
+                            movieDetailFragment,
+                            MovieDetailFragment.MOVIE_DETAIL_FRAG_TAG)
+                    .commit();
+
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_movie_detail_container, new MovieDetailFragment())
                     .commit();

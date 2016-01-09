@@ -3,6 +3,7 @@ package com.harinivaskumarrp.popularmovies;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,8 @@ import java.util.ArrayList;
 public class MovieDetailFragment extends Fragment {
 
     private static final String LOG_TAG = MovieDetailFragment.class.getSimpleName();
+    public static final String MOVIE_DETAIL_FRAG_TAG = "MDFTAG";
+    public static final String KEY_MOVIE_ITEM_POSITION = "movieItemPosition";
 
     private ArrayList<Movie> movieList = null;
 
@@ -28,14 +31,21 @@ public class MovieDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        Bundle arguments = getArguments();
         Intent intent = getActivity().getIntent();
         String mMoviePosition = null;
         Movie movie = null;
 
-        if (intent!= null && intent.hasExtra(Intent.EXTRA_TEXT)){
-            mMoviePosition = intent.getStringExtra(Intent.EXTRA_TEXT);
+        if (intent!= null && intent.hasExtra(KEY_MOVIE_ITEM_POSITION)){
+//            mMoviePosition = intent.getStringExtra(Intent.EXTRA_TEXT);
+            mMoviePosition = intent.getStringExtra(KEY_MOVIE_ITEM_POSITION);
+            movie = movieList.get(Integer.parseInt(mMoviePosition));
+        }else if (arguments != null){
+            Log.d(LOG_TAG, "Hello! I am inside else if");
+            mMoviePosition = arguments.getString(KEY_MOVIE_ITEM_POSITION);
             movie = movieList.get(Integer.parseInt(mMoviePosition));
         }else {
+            Log.d(LOG_TAG, "Hello! I am inside else");
 //            if (PopularMoviesMainActivity.mPosition != null) {
 //                mMoviePosition = PopularMoviesMainActivity.mPosition;
 //            }else {

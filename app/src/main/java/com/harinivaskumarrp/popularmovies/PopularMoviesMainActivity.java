@@ -2,6 +2,7 @@ package com.harinivaskumarrp.popularmovies;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -9,7 +10,7 @@ import android.view.MenuItem;
 
 import com.facebook.stetho.Stetho;
 
-public class PopularMoviesMainActivity extends AppCompatActivity {
+public class PopularMoviesMainActivity extends AppCompatActivity implements MovieListFragment.Callback {
 
     public static boolean mTwoPane = false;
 //    public static String mPosition = null;
@@ -23,8 +24,12 @@ public class PopularMoviesMainActivity extends AppCompatActivity {
         if (findViewById(R.id.fragment_movie_detail_container) != null){
             mTwoPane = true;
             if (savedInstanceState == null){
+                Fragment movieDetailFragment = new MovieDetailFragment();
+
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_movie_detail_container, new MovieDetailFragment())
+                        .replace(R.id.fragment_movie_detail_container,
+                                movieDetailFragment,
+                                MovieDetailFragment.MOVIE_DETAIL_FRAG_TAG)
                         .commit();
             }
         }else {
@@ -38,6 +43,24 @@ public class PopularMoviesMainActivity extends AppCompatActivity {
                             .enableWebKitInspector(
                                     Stetho.defaultInspectorModulesProvider(this))
                             .build());
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MovieListFragment movieListFragment =
+                (MovieListFragment) getSupportFragmentManager().
+                        findFragmentByTag(MovieListFragment.MOVIE_LIST_FRAG_TAG);
+        if (movieListFragment != null){
+            //Notify List Fragment to update the latest data
+        }
+
+        MovieDetailFragment movieDetailFragment =
+                (MovieDetailFragment) getSupportFragmentManager().
+                        findFragmentByTag(MovieDetailFragment.MOVIE_DETAIL_FRAG_TAG);
+        if (movieDetailFragment != null){
+            //Notify Detail Fragment to update the latest data
         }
     }
 
@@ -62,5 +85,26 @@ public class PopularMoviesMainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onMovieItemSelected(int movieItemPosition) {
+        if (mTwoPane){
+            Bundle args = new Bundle();
+            args.putString(MovieDetailFragment.KEY_MOVIE_ITEM_POSITION, "" + movieItemPosition);
+
+            Fragment movieDetailFragment = new MovieDetailFragment();
+            movieDetailFragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_movie_detail_container,
+                            movieDetailFragment,
+                            MovieDetailFragment.MOVIE_DETAIL_FRAG_TAG)
+                    .commit();
+        }else{
+            Intent intent = new Intent(this, MovieDetailActivity.class);
+            intent.putExtra(MovieDetailFragment.KEY_MOVIE_ITEM_POSITION, "" + movieItemPosition);
+            startActivity(intent);
+        }
     }
 }
