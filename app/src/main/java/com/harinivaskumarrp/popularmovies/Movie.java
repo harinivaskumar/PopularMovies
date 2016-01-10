@@ -14,7 +14,7 @@ import java.util.ArrayList;
  */
 public class Movie implements Parcelable{
 
-    private final String LOG_TAG = Movie.class.getSimpleName();
+    private static final String LOG_TAG = Movie.class.getSimpleName();
 
     private final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/";
 
@@ -218,7 +218,7 @@ public class Movie implements Parcelable{
         this.mMoviePosterResId = moviePosterResId;
     }
 
-    public void loadImageFromPicasso(int imageSize, final Movie movie, ImageView imageView){
+    public static void loadImageFromPicasso(int imageSize, final Movie movie, ImageView imageView){
         if (movie.getPosterAvailable()) {
             //Log.v(LOG_TAG, "loadImageFromPicasso : Poster MovieURL is - " + movie.getPoster());
             Picasso.with(MovieListFragment.mContext)

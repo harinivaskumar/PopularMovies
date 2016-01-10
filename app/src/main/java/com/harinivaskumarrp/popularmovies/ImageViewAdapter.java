@@ -1,9 +1,12 @@
 package com.harinivaskumarrp.popularmovies;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.CursorAdapter;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
@@ -12,14 +15,15 @@ import java.util.ArrayList;
  * Created by Hari Nivas Kumar R P on 11/27/2015.
  */
 
-public class ImageViewAdapter extends BaseAdapter {
+public class ImageViewAdapter extends CursorAdapter {
 
     private final String LOG_TAG = ImageViewAdapter.class.getSimpleName();
 
     private Context mContext;
     private ArrayList<Movie> mMovieList = null;
 
-    public ImageViewAdapter(Context context) {
+    public ImageViewAdapter(Context context, Cursor cursor, int flags) {
+        super(context, cursor, flags);
         mContext = context;
         mMovieList = new ArrayList<>();
     }
@@ -46,6 +50,26 @@ public class ImageViewAdapter extends BaseAdapter {
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         //imageView.setPadding(0,0,0,0);
         return imageView;
+    }
+
+    @Override
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        return LayoutInflater.from(mContext)
+                .inflate(R.layout.fragment_popular_movies, parent, false);
+    }
+
+    @Override
+    public void bindView(View view, Context context, Cursor movieCursor) {
+        movieCursor = super.getCursor();
+        ImageView imageView = getNewImageView();
+        Movie movie = new Movie();
+        movie.setPoster(null);
+        movieCursor.moveToFirst();
+        do {
+            Movie.loadImageFromPicasso(Movie.POSTER_IMAGE_SIZE2,
+                    movie, imageView);
+        }while(movieCursor.moveToNext());
+        Log.d(LOG_TAG, "Inside bindView");
     }
 
     public int getCount() {

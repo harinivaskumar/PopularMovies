@@ -1,6 +1,7 @@
 package com.harinivaskumarrp.popularmovies;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -10,7 +11,8 @@ import android.view.MenuItem;
 
 import com.facebook.stetho.Stetho;
 
-public class PopularMoviesMainActivity extends AppCompatActivity implements MovieListFragment.Callback {
+public class PopularMoviesMainActivity extends AppCompatActivity
+        implements MovieListFragment.Callback {
 
     public static boolean mTwoPane = false;
 //    public static String mPosition = null;
@@ -88,11 +90,12 @@ public class PopularMoviesMainActivity extends AppCompatActivity implements Movi
     }
 
     @Override
-    public void onMovieItemSelected(int movieItemPosition) {
-        if (mTwoPane){
-            Bundle args = new Bundle();
-            args.putString(MovieDetailFragment.KEY_MOVIE_ITEM_POSITION, "" + movieItemPosition);
+    public void onMovieItemSelected(int movieItemPosition, String movieId, Uri movieUri) {
+        Bundle args = new Bundle();
+        args.putParcelable(MovieDetailFragment.MOVIE_URI, movieUri);
+        args.putString(MovieDetailFragment.KEY_MOVIE_ITEM_POSITION, "" + movieItemPosition);
 
+        if (mTwoPane){
             Fragment movieDetailFragment = new MovieDetailFragment();
             movieDetailFragment.setArguments(args);
 
@@ -103,7 +106,7 @@ public class PopularMoviesMainActivity extends AppCompatActivity implements Movi
                     .commit();
         }else{
             Intent intent = new Intent(this, MovieDetailActivity.class);
-            intent.putExtra(MovieDetailFragment.KEY_MOVIE_ITEM_POSITION, "" + movieItemPosition);
+            intent.putExtras(args);
             startActivity(intent);
         }
     }

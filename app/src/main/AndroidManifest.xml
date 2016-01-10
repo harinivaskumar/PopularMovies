@@ -38,10 +38,28 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".PopularMoviesMainActivity" />
         </activity>
+        <activity
+            android:name=".ReviewsActivity"
+            android:label="@string/title_activity_reviews"
+            android:parentActivityName=".MovieDetailActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.harinivaskumarrp.popularmovies.MovieDetailActivity" />
+        </activity>
+
+        <activity
+            android:name=".VideosActivity"
+            android:label="@string/title_activity_videos"
+            android:parentActivityName=".MovieDetailActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.harinivaskumarrp.popularmovies.MovieDetailActivity" />
+        </activity>
+
         <provider
+            android:name=".data.generated.MovieProvider"
             android:authorities="com.harinivaskumarrp.popularmovies.data.MovieProvider"
-            android:name="com.harinivaskumarrp.popularmovies.data.generated.MovieProvider"
-            android:exported="false"/>
+            android:exported="false" />
     </application>
 
 </manifest>

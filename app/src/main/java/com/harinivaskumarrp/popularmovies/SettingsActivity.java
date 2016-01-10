@@ -59,9 +59,10 @@ public class SettingsActivity extends PreferenceActivity
             // the preference's 'entries' list (since they have separate labels/values).
             ListPreference listPreference = (ListPreference) preference;
             int prefIndex = listPreference.findIndexOfValue(stringValue);
-            if (validateMovieSorting(prefIndex)) {
-                preference.setSummary(listPreference.getEntries()[prefIndex]);
-            }
+            preference.setSummary(listPreference.getEntries()[prefIndex]);
+//            if (validateMovieSorting(prefIndex)) {
+//                preference.setSummary(listPreference.getEntries()[prefIndex]);
+//            }
         } else {
             // For other preferences, set the summary to the value's simple string representation.
             if (preference.getTitle() == getString(R.string.pref_page_title)){
@@ -96,6 +97,7 @@ public class SettingsActivity extends PreferenceActivity
                 (movieSortIndex == SORTING_RATING)){
             return true;
         }else if(movieSortIndex == SORTING_FAVOURITES) {
+            //TODO remove this check
             Toast.makeText(getApplicationContext(),
                     "Sorry! Movie Sorting : Favourites not supported currently!",
                     Toast.LENGTH_SHORT)
