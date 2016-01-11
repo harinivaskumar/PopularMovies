@@ -2,12 +2,17 @@ package com.harinivaskumarrp.popularmovies;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MovieDetailActivity extends AppCompatActivity {
+public class MovieDetailActivity extends AppCompatActivity{
+
+    private static final String KEY_MOVIE_POSITION = "movieItemPosition";
+
+    private String mMovieItemPosition = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,6 +21,52 @@ public class MovieDetailActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (savedInstanceState == null){
+            Intent intent = new Intent();
+            mMovieItemPosition = intent.getStringExtra(MovieDetailFragment.KEY_MOVIE_ITEM_POSITION);
+
+            Bundle args = new Bundle();
+            args.putString(MovieDetailFragment.KEY_MOVIE_ITEM_POSITION, "" + mMovieItemPosition);
+
+            Fragment movieDetailFragment = new MovieDetailFragment();
+            movieDetailFragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_movie_detail_container,
+                            movieDetailFragment,
+                            MovieDetailFragment.MOVIE_DETAIL_FRAG_TAG)
+                    .commit();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(KEY_MOVIE_POSITION, mMovieItemPosition);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null){
+            mMovieItemPosition = savedInstanceState.getString(KEY_MOVIE_POSITION);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Bundle args = new Bundle();
+        args.putString(MovieDetailFragment.KEY_MOVIE_ITEM_POSITION, "" + mMovieItemPosition);
+
+        Fragment movieDetailFragment = new MovieDetailFragment();
+        movieDetailFragment.setArguments(args);
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_movie_detail_container,
+                        movieDetailFragment,
+                        MovieDetailFragment.MOVIE_DETAIL_FRAG_TAG)
+                .commit();
     }
 
     @Override
@@ -35,6 +86,9 @@ public class MovieDetailActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        }else if (id == android.R.id.home){     // Respond to the action bar's Up/Home button
+            finish();
             return true;
         }
 

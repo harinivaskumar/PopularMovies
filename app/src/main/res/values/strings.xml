@@ -46,4 +46,7 @@
     <string name="rating_title_str">Rating :</string>
     <string name="release_title_str">Release Date :</string>
     <string name="release_content_str">Date</string>
+    <string name="title_activity_reviews">Reviews</string>
+    <string name="title_activity_videos">Videos</string>
+    <string name="action_share">Share</string>
 </resources>

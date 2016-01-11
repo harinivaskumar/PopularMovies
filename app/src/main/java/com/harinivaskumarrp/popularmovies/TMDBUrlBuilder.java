@@ -18,7 +18,8 @@ import java.net.URLDecoder;
 public class TMDBUrlBuilder {
 
     // please, add in your movie database APP ID from www.themoviedb.org
-    private final String MY_MOVIE_APP_ID = "Your_APP_ID";
+    //private final String MY_MOVIE_APP_ID = "Your_APP_ID";
+    private final String MY_MOVIE_APP_ID = "5608f16519a6ff6f73ef032116eb3398";
 
     private final String LOG_TAG = TMDBUrlBuilder.class.getSimpleName();
 
@@ -40,9 +41,9 @@ public class TMDBUrlBuilder {
     private final String MOVIE_REVIEW_ENDPOINT = "/reviews";
 
     //Parameters for Sorting Movies
-    private final int POPULARITY = 1;
-    private final int RATING = 2;
-    private final int FAVOURITES = 3;
+    public final static int POPULARITY = 1;
+    public final static int RATING = 2;
+    public final static int FAVOURITES = 3;
 
     private final int HTTP_REQUEST_FAILURE = 0;
     private final int HTTP_SUCCESS_HTTP_OK = 200;

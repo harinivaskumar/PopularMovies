@@ -1,21 +1,27 @@
 package com.harinivaskumarrp.popularmovies;
 
+import android.content.ContentUris;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.Toast;
+
+import com.harinivaskumarrp.popularmovies.data.MovieProvider;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -25,14 +31,19 @@ import java.util.ArrayList;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class PopularMoviesActivityFragment extends Fragment implements AdapterView.OnItemClickListener{
+public class MovieListFragment extends Fragment
+        implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor>{
 
-    private final String LOG_TAG = PopularMoviesActivityFragment.class.getSimpleName();
+    private final String LOG_TAG = MovieListFragment.class.getSimpleName();
+    private static final int CURSOR_LOADER_ID = 0;
+    public static final String MOVIE_LIST_FRAG_TAG = "MLFTAG";
 
     private final String KEY_SORT_BY_TYPE = "sortByType";
     private final String KEY_PAGE_NUMBER = "pageNumber";
     private final String KEY_MIN_VOTE_COUNT = "minVoteCount";
     private final String KEY_MOVIE_LIST = "movieList";
+    private final String KEY_MOVIE_ITEM_POSITION = "mMovieItemPosition";
+    private final String KEY_FAV_LOADED = "mFavouritesLoaded";
 
     public static Context mContext;
     public static ArrayList<Movie> movieArrayList;
@@ -40,8 +51,18 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
     private GridView mGridView = null;
 
     private String mSortByTypeStr, mPageNumberStr, mMinVoteCountStr;
+    private int mMovieItemPosition = 0;
+    private boolean mFavouritesLoaded = true;
 
-    public PopularMoviesActivityFragment() {
+    public interface Callback {
+        /**
+         * MovieDetailFragmentCallback for when an movie item has been selected.
+         */
+        public void onMovieItemSelected(int movieItemPosition,
+                                        String movieId, Uri movieUri);
+    }
+
+    public MovieListFragment() {
     }
 
     @Override
@@ -52,29 +73,47 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
                 !savedInstanceState.containsKey(KEY_MOVIE_LIST) ||
                 !savedInstanceState.containsKey(KEY_SORT_BY_TYPE) ||
                 !savedInstanceState.containsKey(KEY_PAGE_NUMBER) ||
-                !savedInstanceState.containsKey(KEY_MIN_VOTE_COUNT)){
+                !savedInstanceState.containsKey(KEY_MIN_VOTE_COUNT) ||
+                !savedInstanceState.containsKey(KEY_MOVIE_ITEM_POSITION)){
 
             Log.d(LOG_TAG, "onCreate : Movie Parcel 'movieList' not found. Access the Internet for Movie list!");
 
             movieArrayList = new ArrayList<Movie>();
             mSortByTypeStr = mPageNumberStr = mMinVoteCountStr = null;
+            mMovieItemPosition = 0;
         }
         else {
+            mFavouritesLoaded = savedInstanceState.getBoolean(KEY_FAV_LOADED);
+            Log.d(LOG_TAG, "OnCreate : Read the Favourites loaded State as - " + mFavouritesLoaded + "!");
+
             Log.d(LOG_TAG, "onCreate : Read the Prefs Strings!");
             setSortByTypeStr(savedInstanceState.getString(KEY_SORT_BY_TYPE));
             setPageNumberStr(savedInstanceState.getString(KEY_PAGE_NUMBER));
             setMinVoteCountStr(savedInstanceState.getString(KEY_MIN_VOTE_COUNT));
 
-            Log.d(LOG_TAG, "onCreate : Movie Parcel 'movieList' found. Open & use this for Painting!");
-            movieArrayList = savedInstanceState.getParcelableArrayList(KEY_MOVIE_LIST);
+            if (!mFavouritesLoaded) {
+                Log.d(LOG_TAG, "onCreate : Movie Parcel 'movieList' found. Open & use this for Painting!");
+                movieArrayList = savedInstanceState.getParcelableArrayList(KEY_MOVIE_LIST);
+            }else{
+                mFavouritesLoaded = false;
+                movieArrayList = new ArrayList<Movie>();
+            }
+
+            Log.d(LOG_TAG, "onCreate : Read the selected Movie Item Position!");
+            setMovieItemPosition(savedInstanceState.getInt(KEY_MOVIE_ITEM_POSITION));
         }
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState){
+        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        if (isNetworkAvailable()) {
-            if(movieArrayList.isEmpty()) {
+        if (Utility.isNetworkAvailable(getContext())) {
+            if (movieArrayList.isEmpty() || mFavouritesLoaded) {
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
                 setSortByTypeStr(prefs.getString(getString(R.string.pref_sort_key),
@@ -84,7 +123,8 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
                 setMinVoteCountStr(prefs.getString(getString(R.string.pref_min_vote_key_config),
                         getString(R.string.pref_min_vote_default)));
 
-                updateMovieList(getSortByTypeStr(), getPageNumberStr(), getMinVoteCountStr());
+                updateMovieList(getSortByTypeStr(), getPageNumberStr(),
+                        getMinVoteCountStr(), false);
                 Log.d(LOG_TAG, "onStart : Movie ArrayList is Empty, so access Internet to Fetch MovieList!");
             }else{
                 paintWithMoviePosters();
@@ -95,18 +135,23 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
                     "PageNumber[" + getPageNumberStr() + "] " +
                     "MinVoteCount[" + getMinVoteCountStr() + "]");
         } else {
+            mFavouritesLoaded = true;
             Log.i(LOG_TAG, "onStart : You are Offline. Please, check your Network Connection!");
             Toast.makeText(getContext(),
-                    "You are Offline.\nPlease, check your Network Connection!",
-                    Toast.LENGTH_LONG)
+                    "You are Offline.\nYour favourites will be displayed!",
+                    Toast.LENGTH_SHORT)
                     .show();
+
+            updateMovieList(TMDBUrlBuilder.FAVOURITES + "", getPageNumberStr(),
+                    getMinVoteCountStr(), true);
+            Log.i(LOG_TAG, "onStart : You are Offline. Favourites movies (if any)will be displayed! (if there is any)");
         }
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        if (isNetworkAvailable()) {
+        if (Utility.isNetworkAvailable(getContext())) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
             String sortByTypeNewStr = prefs.getString(getString(R.string.pref_sort_key),
@@ -128,16 +173,21 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
                 paintWithMoviePosters();
                 Log.d(LOG_TAG, "onResume : Movie Pref unchanged. If required just do Painting!");
             } else {
-
-                updateMovieList(sortByTypeNewStr, pageNumberNewStr, minVoteCountNewStr);
+                updateMovieList(sortByTypeNewStr, pageNumberNewStr,
+                        minVoteCountNewStr, false);
                 Log.d(LOG_TAG, "onResume : Movie Pref changed. So, access internet to Fetch New MovieList!");
             }
         } else {
+            mFavouritesLoaded = true;
             Log.i(LOG_TAG, "onResume : You are Offline. Please, check your Network Connection!");
             Toast.makeText(getContext(),
-                    "You are Offline.\nPlease, check your Network Connection!",
-                    Toast.LENGTH_LONG)
+                    "You are Offline.\nYour favourites will be displayed!",
+                    Toast.LENGTH_SHORT)
                     .show();
+
+            updateMovieList(TMDBUrlBuilder.FAVOURITES + "", getPageNumberStr(),
+                    getMinVoteCountStr(), true);
+            Log.i(LOG_TAG, "onResume : You are Offline. Favourites movies (if any) will be displayed!");
         }
     }
 
@@ -148,8 +198,16 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
         outState.putString(KEY_PAGE_NUMBER, getPageNumberStr());
         outState.putString(KEY_MIN_VOTE_COUNT, getMinVoteCountStr());
 
-        Log.d(LOG_TAG, "onSaveInstanceState : Save the Movie Parcel as 'movieList'!");
-        outState.putParcelableArrayList(KEY_MOVIE_LIST, movieArrayList);
+        if (Utility.isNetworkAvailable(getContext())) {
+            Log.d(LOG_TAG, "onSaveInstanceState : Save the Movie Parcel as 'movieList'!");
+            outState.putParcelableArrayList(KEY_MOVIE_LIST, movieArrayList);
+        }
+
+        Log.d(LOG_TAG, "onSaveInstanceState : Save the selected Movie Item position as 'mMovieItemPosition'!");
+        outState.putInt(KEY_MOVIE_ITEM_POSITION, getMovieItemPosition());
+
+        Log.d(LOG_TAG, "onSaveInstanceState : Save the Favourites loaded State as - " + mFavouritesLoaded + "!");
+        outState.putBoolean(KEY_FAV_LOADED, mFavouritesLoaded);
         super.onSaveInstanceState(outState);
     }
 
@@ -158,7 +216,7 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_popular_movies, container, false);
 
-        mImageViewAdapter = new ImageViewAdapter(getContext());
+        mImageViewAdapter = new ImageViewAdapter(getContext(), null, 0);
         mImageViewAdapter.setMovieList(movieArrayList);
 
         mGridView = (GridView) rootView.findViewById(R.id.gridview);
@@ -169,10 +227,16 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
     }
 
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-        //Toast.makeText(getContext(), "" + (1 + position), Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
-        intent.putExtra(Intent.EXTRA_TEXT, "" + position);
-        startActivity(intent);
+
+        Movie movie = movieArrayList.get(position);
+        Uri uri = ContentUris.withAppendedId(
+                MovieProvider.Movies.CONTENT_URI,
+                Integer.parseInt(movie.getMovieId()));
+        Log.d(LOG_TAG, "onItemClick : I have clicked " + movie.getTitle() + movie.getMovieId() + " ------------- + " +
+                Integer.parseInt(movie.getMovieId()) + "\n Uri - " + uri);
+
+        ((Callback) getActivity()).onMovieItemSelected(position, movie.getMovieId(), uri);
+        setMovieItemPosition(position);
     }
 
     private String getSortByTypeStr() {
@@ -199,34 +263,70 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
         this.mMinVoteCountStr = mMinVoteCountStr;
     }
 
-    // Added from StackOverFlow
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        if (activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
-            return true;
-        }
-        Log.e(LOG_TAG, "No Internet Connection available.");
-        return false;
+    private int getMovieItemPosition(){
+        return mMovieItemPosition;
     }
 
-    private void updateMovieList(String sortByTypeStr, String pageNumberStr, String minVoteCountStr) {
-        setSortByTypeStr(sortByTypeStr);
-        setPageNumberStr(pageNumberStr);
-        setMinVoteCountStr(minVoteCountStr);
+    private void setMovieItemPosition(int mMovieItemPosition){
+        if (isValidPosition()) {
+            this.mMovieItemPosition = mMovieItemPosition;
+        }
+    }
 
-        TMDBUrlBuilder tmdbUrlBuilder = new TMDBUrlBuilder();
+    private boolean isValidPosition(){
+        return (mMovieItemPosition != ListView.INVALID_POSITION);
+    }
 
-        tmdbUrlBuilder.setUrlEndPoint(tmdbUrlBuilder.DISCOVER_MOVIE);
-        //tmdbUrlBuilder.setUrlEndPoint(tmdbUrlBuilder.MOVIE_VIDEOS);
-        //tmdbUrlBuilder.setUrlEndPoint(tmdbUrlBuilder.MOVIE_REVIEWS);
-        tmdbUrlBuilder.setSortByType(sortByTypeStr);
-        tmdbUrlBuilder.setPageNumber(pageNumberStr);
-        tmdbUrlBuilder.setMinVoteCount(minVoteCountStr);
+    private boolean isSortTypeFavourites(String mSortByTypeStr){
+        return (Integer.parseInt(mSortByTypeStr) == TMDBUrlBuilder.FAVOURITES);
+    }
 
-        FetchMovieListTask movieListTask = new FetchMovieListTask(tmdbUrlBuilder);
-        movieListTask.execute();
+    private void updateMovieList(String sortByTypeStr, String pageNumberStr,
+                                 String minVoteCountStr, boolean loadFavourites) {
+        if (isSortTypeFavourites(sortByTypeStr)){
+            Cursor cursor = null;
+            try {
+                cursor = getActivity().getContentResolver()
+                        .query(MovieProvider.Movies.CONTENT_URI, null, null, null, null);
+                if (cursor == null || cursor.getCount() == 0) {
+                    getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
+                    Log.d(LOG_TAG, "updateMovieList : Loader Initialized!");
+                }else{
+                    getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
+                    Log.d(LOG_TAG, "updateMovieList : Loader Restarted!");
+                }
+
+                if(loadFavourites){
+                    mFavouritesLoaded = true;
+                    Log.d(LOG_TAG, "Please, relax this will be loaded by Cursor! & Your favourites will be displayed!");
+                }else{
+                    mFavouritesLoaded = false;
+                    setSortByTypeStr(sortByTypeStr);
+                }
+            }catch (Exception e){
+                Log.e(LOG_TAG, "updateMovieList : Exception!");
+                e.printStackTrace();
+            }finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+        } else {
+            mFavouritesLoaded = false;
+            setSortByTypeStr(sortByTypeStr);
+            setPageNumberStr(pageNumberStr);
+            setMinVoteCountStr(minVoteCountStr);
+
+            TMDBUrlBuilder tmdbUrlBuilder = new TMDBUrlBuilder();
+
+            tmdbUrlBuilder.setUrlEndPoint(tmdbUrlBuilder.DISCOVER_MOVIE);
+            tmdbUrlBuilder.setSortByType(sortByTypeStr);
+            tmdbUrlBuilder.setPageNumber(pageNumberStr);
+            tmdbUrlBuilder.setMinVoteCount(minVoteCountStr);
+
+            FetchMovieListTask movieListTask = new FetchMovieListTask(tmdbUrlBuilder);
+            movieListTask.execute();
+        }
     }
 
     private void paintWithMoviePosters(){
@@ -237,6 +337,14 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
                 Toast.LENGTH_SHORT)
                 .show();*/
         mGridView.setAdapter(mImageViewAdapter);
+        restoreMoviePosterSelection();
+    }
+
+    private void restoreMoviePosterSelection(){
+        if (isValidPosition()) {
+            mGridView.setSelection(getMovieItemPosition());
+            mGridView.smoothScrollToPosition(getMovieItemPosition());
+        }
     }
 
     public class FetchMovieListTask extends AsyncTask<Void, Void, String> {
@@ -293,32 +401,53 @@ public class PopularMoviesActivityFragment extends Fragment implements AdapterVi
                         Toast.LENGTH_SHORT)
                         .show();
             }else if (tmdbUrlBuilder.validateHttpResponseCode()){
+                movieArrayList.clear();
                 MovieListData movieListData = new MovieListData(jsonString);
                 if (movieListData.parseMovieListData()) {
                     movieArrayList = movieListData.movieList;
                     paintWithMoviePosters();
+                    mFavouritesLoaded = false;
                 }else{
                     Log.e(LOG_TAG_I, "onPostExecute : parseMovieListData returned null");
                 }
-                /*MovieVideosData movieVideosData = new MovieVideosData(jsonString);
-                if (movieVideosData.parseMovieVideosData()){
-                    Toast.makeText(getActivity(),
-                            "Total Videos in MovieVideos is - " + movieVideosData.getVideoCount(),
-                            Toast.LENGTH_SHORT)
-                            .show();
-                }else{
-                    Log.e(LOG_TAG_I, "onPostExecute : parseMovieVideosData returned null");
-                }*/
-                /*MovieReviewsData movieReviewsData = new MovieReviewsData(jsonString);
-                if (movieReviewsData.parseMovieReviewsData()){
-                    Toast.makeText(getActivity(),
-                            "Total Reviews in MovieReviews is - " + movieReviewsData.getReviewCount(),
-                            Toast.LENGTH_SHORT)
-                            .show();
-                }else{
-                    Log.e(LOG_TAG_I, "onPostExecute : parseMovieReviewsData returned null");
-                }*/
             }
         }
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getActivity(), MovieProvider.Movies.CONTENT_URI,
+                null,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor movieCursor) {
+        if (movieCursor != null) {
+            movieCursor.moveToFirst();
+            //DatabaseUtils.dumpCursor(movieCursor);
+            movieArrayList.clear();
+            MovieListData movieListData = new MovieListData(mContext, movieCursor);
+            if (movieListData.parseMovieCursorData()) {
+                movieArrayList = movieListData.movieList;
+                paintWithMoviePosters();
+                if (!Utility.isNetworkAvailable(getContext())) {
+                    mFavouritesLoaded = true;
+                }
+            }else{
+                Log.e(LOG_TAG, "onLoadFinished : parseMovieListData returned null");
+                Toast.makeText(getContext(),
+                        "No Favourites to display!",
+                        Toast.LENGTH_LONG)
+                        .show();
+            }
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 }
