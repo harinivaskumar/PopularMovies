@@ -52,9 +52,7 @@ public class MovieDetailFragment extends Fragment
             R.id.movie_title,
             R.id.movie_overview,
             R.id.movie_rating,
-            R.id.movie_release_date,
-            R.id.review_count,
-            R.id.video_count
+            R.id.movie_release_date
     };
     TextView[] textView = null;
     ImageView moviePosterImageView = null;
@@ -112,7 +110,7 @@ public class MovieDetailFragment extends Fragment
 */
         View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
 
-        for (int index = 0; index < 6; index++) {
+        for (int index = 0; index < 4; index++) {
             textView[index] = (TextView) rootView.findViewById(textId[index]);
         }
         moviePosterImageView = (ImageView) rootView.findViewById(R.id.movie_poster);
@@ -157,12 +155,16 @@ public class MovieDetailFragment extends Fragment
                 case R.id.review_icon: {
                     args.putParcelable(ReviewsActivity.REVIEW_URI, mUri);
                     args.putString(ReviewsActivity.KEY_MOVIE_ID, mMovie.getMovieId());
+                    args.putString(ReviewsActivity.KEY_MOVIE_TITLE, mMovie.getTitle());
+                    args.putString(ReviewsActivity.KEY_MOVIE_POSTER, mMovie.getPoster());
                     intentClass = ReviewsActivity.class;
                     break;
                 }
                 case R.id.video_icon: {
                     args.putParcelable(VideosActivity.VIDEO_URI, mUri);
                     args.putString(VideosActivity.KEY_MOVIE_ID, mMovie.getMovieId());
+                    args.putString(VideosActivity.KEY_MOVIE_TITLE, mMovie.getTitle());
+                    args.putString(VideosActivity.KEY_MOVIE_POSTER, mMovie.getPoster());
                     intentClass = VideosActivity.class;
                     break;
                 }
