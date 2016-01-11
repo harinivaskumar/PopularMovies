@@ -46,7 +46,7 @@
     <string name="rating_title_str">Rating :</string>
     <string name="release_title_str">Release Date :</string>
     <string name="release_content_str">Date</string>
-    <string name="title_activity_reviews">ReviewsActivity</string>
+    <string name="title_activity_reviews">Reviews</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"
 
@@ -136,7 +136,7 @@
         "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
         "when a user tries to pick up one of cards.\n\n"
     </string>
-    <string name="title_activity_videos">VideosActivity</string>
+    <string name="title_activity_videos">Videos</string>
     <string name="movies_ipsum">Jarlsberg lancashire edam. Dolcelatte hard cheese brie st. agur blue
     cheese caerphilly bavarian bergkase cheese and biscuits mascarpone. Cheeseburger swiss bavarian
     bergkase cream cheese fromage frais cheesy feet port-salut airedale. St. agur blue cheese rubber

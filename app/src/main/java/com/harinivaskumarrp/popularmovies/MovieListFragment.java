@@ -320,8 +320,6 @@ public class MovieListFragment extends Fragment
             TMDBUrlBuilder tmdbUrlBuilder = new TMDBUrlBuilder();
 
             tmdbUrlBuilder.setUrlEndPoint(tmdbUrlBuilder.DISCOVER_MOVIE);
-            //tmdbUrlBuilder.setUrlEndPoint(tmdbUrlBuilder.MOVIE_VIDEOS);
-            //tmdbUrlBuilder.setUrlEndPoint(tmdbUrlBuilder.MOVIE_REVIEWS);
             tmdbUrlBuilder.setSortByType(sortByTypeStr);
             tmdbUrlBuilder.setPageNumber(pageNumberStr);
             tmdbUrlBuilder.setMinVoteCount(minVoteCountStr);
@@ -412,24 +410,6 @@ public class MovieListFragment extends Fragment
                 }else{
                     Log.e(LOG_TAG_I, "onPostExecute : parseMovieListData returned null");
                 }
-                /*MovieVideosData movieVideosData = new MovieVideosData(jsonString);
-                if (movieVideosData.parseMovieVideosData()){
-                    Toast.makeText(getActivity(),
-                            "Total Videos in MovieVideos is - " + movieVideosData.getVideoCount(),
-                            Toast.LENGTH_SHORT)
-                            .show();
-                }else{
-                    Log.e(LOG_TAG_I, "onPostExecute : parseMovieVideosData returned null");
-                }*/
-                /*MovieReviewsData movieReviewsData = new MovieReviewsData(jsonString);
-                if (movieReviewsData.parseMovieReviewsData()){
-                    Toast.makeText(getActivity(),
-                            "Total Reviews in MovieReviews is - " + movieReviewsData.getReviewCount(),
-                            Toast.LENGTH_SHORT)
-                            .show();
-                }else{
-                    Log.e(LOG_TAG_I, "onPostExecute : parseMovieReviewsData returned null");
-                }*/
             }
         }
     }
