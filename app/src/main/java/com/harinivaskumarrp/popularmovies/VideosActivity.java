@@ -17,10 +17,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -74,12 +77,12 @@ public class VideosActivity extends AppCompatActivity implements View.OnClickLis
     };
     TextView[] titleTextView = new TextView[MAX_CARDS];
 
-    private final int[] contentTextId = {
-            R.id.video_card_content1, R.id.video_card_content2, R.id.video_card_content3,
-            R.id.video_card_content4, R.id.video_card_content5, R.id.video_card_content6,
-            R.id.video_card_content7, R.id.video_card_content8
+    private final int[] videoImageId = {
+            R.id.video_card_button1, R.id.video_card_button2, R.id.video_card_button3,
+            R.id.video_card_button4, R.id.video_card_button5, R.id.video_card_button6,
+            R.id.video_card_button7, R.id.video_card_button8
     };
-    TextView[] contentTextView = new TextView[MAX_CARDS];
+    ImageButton[] videoImageView = new ImageButton[MAX_CARDS];
 
     Snackbar snackbar;
 
@@ -94,13 +97,11 @@ public class VideosActivity extends AppCompatActivity implements View.OnClickLis
         for (int index = 0; index < MAX_CARDS; index++) {
             cardView[index] = (CardView) findViewById(cardViewId[index]);
             titleTextView[index] = (TextView) findViewById(titleTextId[index]);
-            contentTextView[index] = (TextView) findViewById(contentTextId[index]);
+            videoImageView[index] = (ImageButton) findViewById(videoImageId[index]);
 
             cardView[index].setVisibility(View.INVISIBLE);
             titleTextView[index].setText("");
-            contentTextView[index].setText("");
-
-            titleTextView[index].setOnClickListener(this);
+            videoImageView[index].setOnClickListener(this);
         }
 
         mMovie = new Movie();
@@ -189,18 +190,33 @@ public class VideosActivity extends AppCompatActivity implements View.OnClickLis
             if (videoArrayList.size() >= (index + 1)) {
                 String title = videoArrayList.get(index).getPublishedSite()
                         + " - " + videoArrayList.get(index).getName();
-                String videoKey = videoArrayList.get(index).getKey();
-                String content = videoKey + "\n " +
-                        "http://img.youtube.com/vi/" + videoKey + "/0.jpg";
+                final String videoKey = videoArrayList.get(index).getKey();
+                String imageUrlStr = "http://img.youtube.com/vi/" + videoKey + "/0.jpg";
 
                 cardView[index].setVisibility(View.VISIBLE);
                 titleTextView[index].setText(title);
-                contentTextView[index].setText(content);
+
+                videoImageView[index].setAdjustViewBounds(true);
+                videoImageView[index].setScaleType(ImageView.ScaleType.CENTER_CROP);
+                Picasso.with(mContext)
+                        .load(imageUrlStr)
+                        .into(videoImageView[index], new com.squareup.picasso.Callback() {
+                            @Override
+                            public void onSuccess() {
+                            }
+
+                            @Override
+                            public void onError() {
+                                Log.d(LOG_TAG, "loadImageFromPicasso : " +
+                                        "Failed to Load image from URL - " +
+                                        "http://img.youtube.com/vi/" + videoKey + "/0.jpg");
+                            }
+                        });
             } else {
                 if ((videoArrayList.size() == 0) && (index == 0)) {
                     cardView[0].setVisibility(View.VISIBLE);
                     titleTextView[0].setText(INFO_NO_VIDEOS);
-                    ((LinearLayout) contentTextView[0].getParent()).removeView(contentTextView[0]);
+                    ((LinearLayout) videoImageView[0].getParent()).removeView(videoImageView[0]);
                 } else {
                     if (index != 0) {
                         ((LinearLayout) cardView[index].getParent()).removeView(cardView[index]);
@@ -227,7 +243,7 @@ public class VideosActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View view) {
         for (int index = 0; index < MAX_CARDS; index++) {
-            if (view.getId() == titleTextId[index]) {
+            if (view.getId() == videoImageId[index]) {
                 String urlPrefix = "http://" + YOUTUBE_BASE_URL;
                 String actualUrl = urlPrefix + videoArrayList.get(index).getKey();
 

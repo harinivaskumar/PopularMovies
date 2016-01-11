@@ -62,18 +62,21 @@
                 <LinearLayout
                     style="@style/Widget.CardContent"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:id="@+id/video_card_button1" />
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="100dp"
                         android:id="@+id/video_card_text_heading1"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/video_card_content1"/>
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:paddingLeft="@dimen/video_title_left_pad"
+                        android:paddingRight="@dimen/video_title_right_pad" />
 
                 </LinearLayout>
 
@@ -82,26 +85,27 @@
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_margin"
-                android:layout_marginLeft="@dimen/card_margin"
-                android:layout_marginRight="@dimen/card_margin"
+                android:layout_margin="@dimen/card_margin"
                 android:id="@+id/video_card2">
 
                 <LinearLayout
                     style="@style/Widget.CardContent"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:id="@+id/video_card_button2" />
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="100dp"
                         android:id="@+id/video_card_text_heading2"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/video_card_content2"/>
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:paddingLeft="@dimen/video_title_left_pad"
+                        android:paddingRight="@dimen/video_title_right_pad" />
 
                 </LinearLayout>
 
@@ -110,26 +114,27 @@
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_margin"
-                android:layout_marginLeft="@dimen/card_margin"
-                android:layout_marginRight="@dimen/card_margin"
+                android:layout_margin="@dimen/card_margin"
                 android:id="@+id/video_card3">
 
                 <LinearLayout
                     style="@style/Widget.CardContent"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:id="@+id/video_card_button3" />
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="100dp"
                         android:id="@+id/video_card_text_heading3"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/video_card_content3"/>
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:paddingLeft="@dimen/video_title_left_pad"
+                        android:paddingRight="@dimen/video_title_right_pad" />
 
                 </LinearLayout>
 
@@ -138,26 +143,27 @@
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_margin"
-                android:layout_marginLeft="@dimen/card_margin"
-                android:layout_marginRight="@dimen/card_margin"
+                android:layout_margin="@dimen/card_margin"
                 android:id="@+id/video_card4">
 
                 <LinearLayout
                     style="@style/Widget.CardContent"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:id="@+id/video_card_button4"/>
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="100dp"
                         android:id="@+id/video_card_text_heading4"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/video_card_content4"/>
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:paddingLeft="@dimen/video_title_left_pad"
+                        android:paddingRight="@dimen/video_title_right_pad"/>
 
                 </LinearLayout>
 
@@ -166,26 +172,27 @@
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_margin"
-                android:layout_marginLeft="@dimen/card_margin"
-                android:layout_marginRight="@dimen/card_margin"
+                android:layout_margin="@dimen/card_margin"
                 android:id="@+id/video_card5">
 
                 <LinearLayout
                     style="@style/Widget.CardContent"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:id="@+id/video_card_button5"/>
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="100dp"
                         android:id="@+id/video_card_text_heading5"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/video_card_content5"/>
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:paddingLeft="@dimen/video_title_left_pad"
+                        android:paddingRight="@dimen/video_title_right_pad"/>
 
                 </LinearLayout>
 
@@ -194,26 +201,27 @@
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_margin"
-                android:layout_marginLeft="@dimen/card_margin"
-                android:layout_marginRight="@dimen/card_margin"
+                android:layout_margin="@dimen/card_margin"
                 android:id="@+id/video_card6">
 
                 <LinearLayout
                     style="@style/Widget.CardContent"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:id="@+id/video_card_button6"/>
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="100dp"
                         android:id="@+id/video_card_text_heading6"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/video_card_content6"/>
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:paddingLeft="@dimen/video_title_left_pad"
+                        android:paddingRight="@dimen/video_title_right_pad"/>
 
                 </LinearLayout>
 
@@ -222,26 +230,27 @@
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_margin"
-                android:layout_marginLeft="@dimen/card_margin"
-                android:layout_marginRight="@dimen/card_margin"
+                android:layout_margin="@dimen/card_margin"
                 android:id="@+id/video_card7">
 
                 <LinearLayout
                     style="@style/Widget.CardContent"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:id="@+id/video_card_button7"/>
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="100dp"
                         android:id="@+id/video_card_text_heading7"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/video_card_content7"/>
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:paddingLeft="@dimen/video_title_left_pad"
+                        android:paddingRight="@dimen/video_title_right_pad"/>
 
                 </LinearLayout>
 
@@ -250,26 +259,27 @@
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_margin"
-                android:layout_marginLeft="@dimen/card_margin"
-                android:layout_marginRight="@dimen/card_margin"
+                android:layout_margin="@dimen/card_margin"
                 android:id="@+id/video_card8">
 
                 <LinearLayout
                     style="@style/Widget.CardContent"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:id="@+id/video_card_button8"/>
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="100dp"
                         android:id="@+id/video_card_text_heading8"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/video_card_content8"/>
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:paddingLeft="@dimen/video_title_left_pad"
+                        android:paddingRight="@dimen/video_title_right_pad"/>
 
                 </LinearLayout>
 
